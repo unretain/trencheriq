@@ -171,8 +171,9 @@ app.get('/api/games', (req, res) => {
         const games = Array.from(activeGames.values()).map(game => ({
             code: game.code,
             quizTitle: game.quiz.title,
-            host: game.hostWallet,
-            prizePool: game.prizePool,
+            host: game.hostWallet || 'Anonymous',
+            prizePool: game.prizePool || 0,
+            isFreeGame: game.isFreeGame || false,
             status: game.status,
             players: game.players.length,
             questionCount: game.quiz.questions.length,
@@ -188,14 +189,20 @@ app.get('/api/games', (req, res) => {
 // Create new game
 app.post('/api/games/create', (req, res) => {
     try {
-        const { quizId, prizePool, hostWallet } = req.body;
+        const { quizId, prizePool, hostWallet, isFreeGame } = req.body;
 
-        if (!quizId || !prizePool || !hostWallet) {
+        if (!quizId) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        if (prizePool < 0.0001 || prizePool > 1000) {
-            return res.status(400).json({ error: 'Prize pool must be between 0.0001 and 1000 SOL' });
+        // Validate prize games
+        if (!isFreeGame) {
+            if (!hostWallet) {
+                return res.status(400).json({ error: 'Host wallet required for prize games' });
+            }
+            if (prizePool < 0.001 || prizePool > 1000) {
+                return res.status(400).json({ error: 'Prize pool must be between 0.001 and 1000 SOL' });
+            }
         }
 
         const quizzes = readQuizzes();
@@ -210,8 +217,9 @@ app.post('/api/games/create', (req, res) => {
         const newGame = {
             code: gameCode,
             quiz: quiz,
-            hostWallet: hostWallet,
-            prizePool: prizePool,
+            hostWallet: hostWallet || null,
+            prizePool: prizePool || 0,
+            isFreeGame: isFreeGame || false,
             status: 'waiting', // waiting, playing, finished
             players: [],
             answers: {},
@@ -226,8 +234,9 @@ app.post('/api/games/create', (req, res) => {
         io.emit('gameCreated', {
             code: gameCode,
             quizTitle: quiz.title,
-            host: hostWallet,
-            prizePool: prizePool,
+            host: hostWallet || 'Anonymous',
+            prizePool: prizePool || 0,
+            isFreeGame: isFreeGame || false,
             status: 'waiting',
             players: 0,
             questionCount: quiz.questions.length

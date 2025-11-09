@@ -12,132 +12,136 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #00ff00;
             min-height: 100vh;
         }
 
         .navbar {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
+            background-color: #1a1a1a;
+            border-bottom: 2px solid #00ff00;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 10px;
             text-decoration: none;
-            color: white;
-            font-size: 1.5rem;
+            color: #00ff00;
+            font-size: 1.5em;
             font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        .nav-brand:hover {
-            transform: scale(1.05);
-        }
-
-        .nav-logo {
-            font-size: 2rem;
+            text-shadow: 0 0 10px #00ff00;
         }
 
         .nav-links {
             display: flex;
-            gap: 1.5rem;
+            gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 18px;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            color: #00ff00;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 4px;
             transition: all 0.3s;
-            font-weight: 500;
+            font-size: 0.95em;
         }
 
         .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background-color: #00ff00;
+            color: #000;
+            transform: translateY(-2px);
         }
 
         .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: #00ff00;
+            color: #000;
         }
 
         .nav-divider {
-            width: 1px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.3);
+            width: 2px;
+            height: 20px;
+            background: #00ff00;
+            opacity: 0.5;
         }
 
         .container {
-            padding: 2rem;
-            max-width: 1000px;
+            padding: 40px 20px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
         .host-card {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background-color: #0a0a0a;
+            border: 3px solid #00ff00;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
         }
 
         .host-title {
             font-size: 2.5rem;
-            color: #667eea;
-            margin-bottom: 0.5rem;
+            color: #00ff00;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ff00;
+            text-align: center;
         }
 
         .host-subtitle {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
+            color: #00ff00;
+            margin-bottom: 30px;
+            opacity: 0.7;
+            text-align: center;
         }
 
         .wallet-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 12px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #000;
+            border: 2px solid #00ff00;
         }
 
         .wallet-status {
-            margin-bottom: 1rem;
-            font-weight: 500;
-            color: #666;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #00ff00;
         }
 
         .wallet-address {
-            font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            color: #667eea;
-            margin-top: 0.5rem;
+            color: #00ff00;
+            margin-top: 10px;
             word-break: break-all;
+            opacity: 0.8;
         }
 
         .connect-wallet-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
+            background: #000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 15px 30px;
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
+            width: 100%;
+            font-family: 'Courier New', monospace;
         }
 
         .connect-wallet-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         }
 
         .connect-wallet-btn:disabled {
@@ -146,59 +150,74 @@
         }
 
         .form-section {
-            margin-top: 2rem;
+            margin-top: 30px;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 25px;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #00ff00;
         }
 
-        .form-select {
+        .form-select, .prize-input {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #00ff00;
+            background: #000;
+            color: #00ff00;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            font-family: 'Courier New', monospace;
         }
 
-        .form-select:focus {
+        .form-select:focus, .prize-input:focus {
             outline: none;
-            border-color: #667eea;
-        }
-
-        .prize-input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            transition: border-color 0.3s;
-        }
-
-        .prize-input:focus {
-            outline: none;
-            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
         .prize-hint {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #00ff00;
+            opacity: 0.7;
+        }
+
+        .prize-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .prize-type-btn {
+            flex: 1;
+            padding: 15px;
+            background: #000;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .prize-type-btn:hover {
+            background: #003300;
+        }
+
+        .prize-type-btn.active {
+            background: #00ff00;
+            color: #000;
         }
 
         .quiz-preview {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #000;
+            border: 2px solid #00ff00;
             display: none;
         }
 
@@ -208,27 +227,28 @@
 
         .quiz-info {
             font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
+            color: #00ff00;
+            margin-bottom: 8px;
+            opacity: 0.8;
         }
 
         .create-game-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: #00ff00;
+            color: #000;
             border: none;
-            padding: 1.5rem 3rem;
-            border-radius: 12px;
+            padding: 20px 40px;
             font-size: 1.3rem;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             width: 100%;
-            margin-top: 2rem;
+            margin-top: 30px;
+            font-family: 'Courier New', monospace;
         }
 
         .create-game-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
 
         .create-game-btn:disabled {
@@ -237,28 +257,33 @@
         }
 
         .error-message {
-            color: #f5576c;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #ffe0e0;
-            border-radius: 8px;
-            font-weight: 500;
+            color: #ff0000;
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a0000;
+            border: 2px solid #ff0000;
         }
 
         .success-message {
-            color: #4caf50;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #e0ffe0;
-            border-radius: 8px;
-            font-weight: 500;
+            color: #00ff00;
+            margin-top: 20px;
+            padding: 15px;
+            background: #001a00;
+            border: 2px solid #00ff00;
+        }
+
+        .no-wallet-note {
+            padding: 15px;
+            background: #001a00;
+            border: 2px solid #00ff00;
+            margin-top: 20px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <a href="index.html" class="nav-brand">
-            <span class="nav-logo">🧠</span>
             <span class="nav-title">TRENCHER IQ</span>
         </a>
         <div class="nav-links">
@@ -277,16 +302,28 @@
 
     <div class="container">
         <div class="host-card">
-            <h1 class="host-title">Host Live Game</h1>
-            <p class="host-subtitle">Create a live multiplayer game with SOL prizes</p>
+            <h1 class="host-title">HOST LIVE GAME</h1>
+            <p class="host-subtitle">Create a multiplayer quiz with optional SOL prizes</p>
 
-            <div class="wallet-section">
-                <div class="wallet-status" id="walletStatus">Wallet not connected</div>
-                <button class="connect-wallet-btn" id="connectWalletBtn">Connect Phantom Wallet</button>
-                <div class="wallet-address" id="walletAddress"></div>
-            </div>
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="form-label">Game Type</label>
+                    <div class="prize-type-selector">
+                        <button class="prize-type-btn active" id="freeGameBtn">FREE GAME</button>
+                        <button class="prize-type-btn" id="prizeGameBtn">PRIZE GAME</button>
+                    </div>
+                </div>
 
-            <div class="form-section" id="formSection" style="display: none;">
+                <div id="walletSection" class="wallet-section" style="display: none;">
+                    <div class="wallet-status" id="walletStatus">Wallet not connected</div>
+                    <button class="connect-wallet-btn" id="connectWalletBtn">CONNECT PHANTOM WALLET</button>
+                    <div class="wallet-address" id="walletAddress"></div>
+                </div>
+
+                <div id="noPrizeNote" class="no-wallet-note">
+                    FREE GAME - No wallet required. Players compete for glory!
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Select Quiz</label>
                     <select class="form-select" id="quizSelect">
@@ -297,18 +334,18 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="prizeAmountSection" style="display: none;">
                     <label class="form-label">Prize Pool (SOL)</label>
                     <input
                         type="number"
                         class="prize-input"
                         id="prizeInput"
-                        placeholder="0.0001"
-                        step="0.0001"
-                        min="0.0001"
+                        placeholder="0.01"
+                        step="0.001"
+                        min="0.001"
                         max="1000"
                     >
-                    <div class="prize-hint">Minimum: 0.0001 SOL | Maximum: 1000 SOL</div>
+                    <div class="prize-hint">Minimum: 0.001 SOL | Maximum: 1000 SOL | Winner takes all</div>
                 </div>
 
                 <button class="create-game-btn" id="createGameBtn" disabled>CREATE GAME</button>
@@ -323,18 +360,44 @@
 
         let walletAddress = null;
         let quizzes = [];
+        let isPrizeGame = false;
         let solanaConnection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
+        const freeGameBtn = document.getElementById('freeGameBtn');
+        const prizeGameBtn = document.getElementById('prizeGameBtn');
+        const walletSection = document.getElementById('walletSection');
+        const noPrizeNote = document.getElementById('noPrizeNote');
+        const prizeAmountSection = document.getElementById('prizeAmountSection');
         const connectWalletBtn = document.getElementById('connectWalletBtn');
         const walletStatus = document.getElementById('walletStatus');
         const walletAddressDiv = document.getElementById('walletAddress');
-        const formSection = document.getElementById('formSection');
         const quizSelect = document.getElementById('quizSelect');
         const quizPreview = document.getElementById('quizPreview');
         const quizInfo = document.getElementById('quizInfo');
         const prizeInput = document.getElementById('prizeInput');
         const createGameBtn = document.getElementById('createGameBtn');
         const messageBox = document.getElementById('messageBox');
+
+        // Game type selection
+        freeGameBtn.addEventListener('click', () => {
+            isPrizeGame = false;
+            freeGameBtn.classList.add('active');
+            prizeGameBtn.classList.remove('active');
+            walletSection.style.display = 'none';
+            prizeAmountSection.style.display = 'none';
+            noPrizeNote.style.display = 'block';
+            validateForm();
+        });
+
+        prizeGameBtn.addEventListener('click', () => {
+            isPrizeGame = true;
+            prizeGameBtn.classList.add('active');
+            freeGameBtn.classList.remove('active');
+            walletSection.style.display = 'block';
+            prizeAmountSection.style.display = 'block';
+            noPrizeNote.style.display = 'none';
+            validateForm();
+        });
 
         // Check if Phantom wallet is installed
         const getProvider = () => {
@@ -360,18 +423,12 @@
                 walletAddress = resp.publicKey.toString();
 
                 walletStatus.textContent = 'Wallet Connected';
-                walletStatus.style.color = '#4caf50';
-                walletAddressDiv.textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`;
-                connectWalletBtn.textContent = 'Wallet Connected';
+                walletAddressDiv.textContent = `${walletAddress.substring(0, 12)}...${walletAddress.substring(walletAddress.length - 12)}`;
+                connectWalletBtn.textContent = 'WALLET CONNECTED';
                 connectWalletBtn.disabled = true;
 
-                // Show form
-                formSection.style.display = 'block';
-
-                // Load quizzes
-                await loadQuizzes();
-
                 showSuccess('Wallet connected successfully!');
+                validateForm();
             } catch (err) {
                 showError('Failed to connect wallet: ' + err.message);
             }
@@ -386,17 +443,16 @@
                     if (resp.publicKey) {
                         walletAddress = resp.publicKey.toString();
                         walletStatus.textContent = 'Wallet Connected';
-                        walletStatus.style.color = '#4caf50';
-                        walletAddressDiv.textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`;
-                        connectWalletBtn.textContent = 'Wallet Connected';
+                        walletAddressDiv.textContent = `${walletAddress.substring(0, 12)}...${walletAddress.substring(walletAddress.length - 12)}`;
+                        connectWalletBtn.textContent = 'WALLET CONNECTED';
                         connectWalletBtn.disabled = true;
-                        formSection.style.display = 'block';
-                        await loadQuizzes();
                     }
                 }
             } catch (err) {
                 // Silent fail
             }
+
+            await loadQuizzes();
         });
 
         // Load available quizzes
@@ -441,32 +497,37 @@
 
         function validateForm() {
             const quizSelected = quizSelect.value !== '';
-            const prizeValid = prizeInput.value >= 0.0001 && prizeInput.value <= 1000;
-            const walletConnected = walletAddress !== null;
 
-            createGameBtn.disabled = !(quizSelected && prizeValid && walletConnected);
+            if (!isPrizeGame) {
+                // Free game - only need quiz selection
+                createGameBtn.disabled = !quizSelected;
+            } else {
+                // Prize game - need quiz, wallet, and valid prize amount
+                const prizeValid = prizeInput.value >= 0.001 && prizeInput.value <= 1000;
+                const walletConnected = walletAddress !== null;
+                createGameBtn.disabled = !(quizSelected && prizeValid && walletConnected);
+            }
         }
 
-        // Create game with escrow deposit
+        // Create game
         createGameBtn.addEventListener('click', async () => {
             const quizId = quizSelect.value;
-            const prizeAmount = parseFloat(prizeInput.value);
+            const prizeAmount = isPrizeGame ? parseFloat(prizeInput.value) : 0;
 
-            if (!quizId || !prizeAmount) {
-                showError('Please select a quiz and enter a prize amount');
+            if (!quizId) {
+                showError('Please select a quiz');
                 return;
             }
 
-            if (!walletAddress) {
-                showError('Please connect your wallet first');
+            if (isPrizeGame && !walletAddress) {
+                showError('Please connect your wallet for prize games');
                 return;
             }
 
             try {
                 createGameBtn.disabled = true;
-                createGameBtn.textContent = 'DEPOSITING PRIZE TO ESCROW...';
+                createGameBtn.textContent = 'CREATING GAME...';
 
-                // Step 1: Create game on backend to get game code
                 const response = await fetch('/api/games/create', {
                     method: 'POST',
                     headers: {
@@ -475,7 +536,8 @@
                     body: JSON.stringify({
                         quizId: quizId,
                         prizePool: prizeAmount,
-                        hostWallet: walletAddress
+                        hostWallet: isPrizeGame ? walletAddress : null,
+                        isFreeGame: !isPrizeGame
                     })
                 });
 
@@ -485,68 +547,12 @@
                     throw new Error(data.error || 'Failed to create game');
                 }
 
-                const gameCode = data.gameCode;
-
-                // Step 2: Create escrow PDA (Program Derived Address)
-                const escrowSeed = `escrow_${gameCode}`;
-                const [escrowPDA] = await PublicKey.findProgramAddress(
-                    [Buffer.from(escrowSeed)],
-                    new PublicKey('11111111111111111111111111111111') // System program for now
-                );
-
-                showSuccess(`Game code: ${gameCode}. Please approve the transaction to deposit ${prizeAmount} SOL...`);
-
-                // Step 3: Create transaction to deposit funds
-                const provider = window.phantom?.solana;
-                if (!provider) {
-                    throw new Error('Phantom wallet not found');
-                }
-
-                const lamports = Math.floor(prizeAmount * LAMPORTS_PER_SOL);
-
-                // Get recent blockhash
-                const { blockhash } = await solanaConnection.getLatestBlockhash();
-
-                // Create transaction
-                const transaction = new Transaction({
-                    recentBlockhash: blockhash,
-                    feePayer: new PublicKey(walletAddress)
-                });
-
-                // Add transfer instruction to escrow
-                transaction.add(
-                    SystemProgram.transfer({
-                        fromPubkey: new PublicKey(walletAddress),
-                        toPubkey: escrowPDA,
-                        lamports: lamports
-                    })
-                );
-
-                createGameBtn.textContent = 'WAITING FOR APPROVAL...';
-
-                // Sign and send transaction
-                const signed = await provider.signAndSendTransaction(transaction);
-
-                showSuccess(`Prize deposited! Transaction: ${signed.signature}`);
-                createGameBtn.textContent = 'FINALIZING...';
-
-                // Step 4: Update game with escrow address
-                await fetch(`/api/games/${gameCode}/escrow`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        escrowAddress: escrowPDA.toBase58(),
-                        transactionSignature: signed.signature
-                    })
-                });
-
-                showSuccess(`Game created! Redirecting to host control...`);
+                const gameType = isPrizeGame ? `PRIZE: ${prizeAmount} SOL` : 'FREE GAME';
+                showSuccess(`Game created! Type: ${gameType} | Code: ${data.gameCode}`);
 
                 // Redirect to host control page
                 setTimeout(() => {
-                    window.location.href = `/host-control.html?code=${gameCode}`;
+                    window.location.href = `/host-control.html?code=${data.gameCode}`;
                 }, 2000);
 
             } catch (err) {
