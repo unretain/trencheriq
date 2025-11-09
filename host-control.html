@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Courier New', monospace;
+            background: #000;
             min-height: 100vh;
         }
 
@@ -24,32 +24,35 @@
         }
 
         .host-header {
-            background: white;
-            border-radius: 20px 20px 0 0;
+            background: #0a0a0a;
+            border: 3px solid #0f0;
+            border-bottom: none;
             padding: 2rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
         }
 
         .game-code {
             font-size: 3rem;
             font-weight: bold;
-            color: #667eea;
+            color: #0f0;
             font-family: 'Courier New', monospace;
             text-align: center;
             margin-bottom: 1rem;
+            text-shadow: 0 0 20px #0f0;
         }
 
         .game-info {
             text-align: center;
-            color: #666;
+            color: #0f0;
             font-size: 1.1rem;
+            opacity: 0.8;
         }
 
         .prize-display {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: #000;
+            border: 2px solid #0f0;
+            color: #0f0;
             padding: 1.5rem;
-            border-radius: 15px;
             text-align: center;
             margin: 1.5rem 0;
         }
@@ -63,13 +66,15 @@
             font-size: 2.5rem;
             font-weight: bold;
             margin-top: 0.5rem;
+            text-shadow: 0 0 15px #0f0;
         }
 
         .main-content {
-            background: white;
-            border-radius: 0 0 20px 20px;
+            background: #0a0a0a;
+            border: 3px solid #0f0;
+            border-top: none;
             padding: 2rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
         }
 
         .section {
@@ -78,7 +83,7 @@
 
         .section-title {
             font-size: 1.5rem;
-            color: #333;
+            color: #0f0;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -93,8 +98,8 @@
 
         .player-card {
             padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
+            background: #000;
+            border: 2px solid #0f0;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -103,38 +108,38 @@
         .player-avatar {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f0;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #000;
             font-weight: bold;
         }
 
         .player-address {
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            color: #333;
+            color: #0f0;
         }
 
         .start-game-btn {
             width: 100%;
             padding: 1.5rem;
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-            color: white;
+            background: #0f0;
+            color: #000;
             border: none;
-            border-radius: 12px;
             font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 1rem;
+            font-family: 'Courier New', monospace;
         }
 
         .start-game-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
 
         .start-game-btn:disabled {
@@ -145,20 +150,20 @@
         .next-question-btn {
             width: 100%;
             padding: 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #0f0;
+            color: #000;
             border: none;
-            border-radius: 12px;
             font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 1rem;
+            font-family: 'Courier New', monospace;
         }
 
         .next-question-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
 
         .next-question-btn:disabled {
@@ -168,25 +173,27 @@
 
         .game-status {
             padding: 1rem;
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            border-radius: 8px;
+            background: #000;
+            border: 2px solid #0f0;
+            border-left: 4px solid #0f0;
             margin-bottom: 1.5rem;
+            color: #0f0;
         }
 
         .game-status.playing {
-            background: #fff3e0;
-            border-left-color: #ff9800;
+            background: #001a00;
+            border-color: #0f0;
         }
 
         .game-status.finished {
-            background: #e8f5e9;
-            border-left-color: #4caf50;
+            background: #001a00;
+            border-color: #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         }
 
         .current-question {
             font-size: 1.2rem;
-            color: #333;
+            color: #0f0;
             margin-bottom: 1rem;
         }
 
@@ -200,57 +207,73 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: #000;
+            border: 2px solid #0f0;
             margin-bottom: 0.5rem;
         }
 
         .leaderboard-item.first {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
 
         .leaderboard-rank {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #667eea;
+            color: #0f0;
             margin-right: 1rem;
+        }
+
+        .leaderboard-item.first .leaderboard-rank {
+            color: #000;
         }
 
         .leaderboard-address {
             flex: 1;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
+            color: #0f0;
+        }
+
+        .leaderboard-item.first .leaderboard-address {
+            color: #000;
         }
 
         .leaderboard-score {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #333;
+            color: #0f0;
+        }
+
+        .leaderboard-item.first .leaderboard-score {
+            color: #000;
         }
 
         .end-game-btn {
             width: 100%;
             padding: 1rem;
-            background: #f44336;
-            color: white;
+            background: #0f0;
+            color: #000;
             border: none;
-            border-radius: 12px;
             font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 1rem;
+            font-family: 'Courier New', monospace;
         }
 
         .end-game-btn:hover {
             transform: translateY(-2px);
-            background: #d32f2f;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
 
         .empty-players {
             text-align: center;
             padding: 2rem;
-            color: #999;
+            color: #0f0;
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -267,12 +290,12 @@
 
         <div class="main-content">
             <div class="game-status" id="gameStatus">
-                ⏳ Waiting for players to join...
+                WAITING FOR PLAYERS TO JOIN...
             </div>
 
             <div class="section">
                 <div class="section-title">
-                    👥 Players (<span id="playerCount">0</span>)
+                    PLAYERS (<span id="playerCount">0</span>)
                 </div>
                 <div class="players-grid" id="playersGrid">
                     <div class="empty-players">No players have joined yet</div>
@@ -294,28 +317,26 @@
 
             <div class="section" id="leaderboardSection" style="display: none;">
                 <div class="section-title">
-                    🏆 Leaderboard
+                    LEADERBOARD
                 </div>
                 <div class="leaderboard" id="leaderboard"></div>
             </div>
 
             <button class="end-game-btn" id="endGameBtn" style="display: none;">
-                END GAME & PAY WINNER
+                SEND PRIZE TO WINNER
             </button>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module">
-        import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.0/+esm';
-
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.0/lib/index.iife.min.js"></script>
+    <script>
         const urlParams = new URLSearchParams(window.location.search);
         const gameCode = urlParams.get('code');
         const socket = io();
 
         let gameData = null;
         let currentQuestionIndex = 0;
-        let solanaConnection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
         document.getElementById('gameCode').textContent = gameCode;
 
@@ -387,13 +408,13 @@
             const statusDiv = document.getElementById('gameStatus');
             if (status === 'waiting') {
                 statusDiv.className = 'game-status';
-                statusDiv.textContent = '⏳ Waiting for players to join...';
+                statusDiv.textContent = 'WAITING FOR PLAYERS TO JOIN...';
             } else if (status === 'playing') {
                 statusDiv.className = 'game-status playing';
-                statusDiv.textContent = '🎮 Game in progress';
+                statusDiv.textContent = 'GAME IN PROGRESS';
             } else if (status === 'finished') {
                 statusDiv.className = 'game-status finished';
-                statusDiv.textContent = '🏆 Game finished!';
+                statusDiv.textContent = 'GAME FINISHED!';
             }
         }
 
@@ -446,6 +467,15 @@
                 return;
             }
 
+            // Check if this is a free game
+            if (gameData.isFreeGame || !gameData.prizePool || gameData.prizePool === 0) {
+                alert('This is a free game - no prize to send!\n\nRedirecting to games page...');
+                setTimeout(() => {
+                    window.location.href = '/games.html';
+                }, 2000);
+                return;
+            }
+
             const winner = gameData.leaderboard[0];
             const winnerAddress = winner.address;
 
@@ -460,27 +490,24 @@
                     return;
                 }
 
-                // Get escrow address
-                const escrowSeed = `escrow_${gameCode}`;
-                const [escrowPDA] = await PublicKey.findProgramAddress(
-                    [Buffer.from(escrowSeed)],
-                    new PublicKey('11111111111111111111111111111111')
-                );
+                // Connect wallet if not already
+                await provider.connect();
 
-                // Build transaction to transfer from escrow to winner
-                const lamports = Math.floor(gameData.prizePool * LAMPORTS_PER_SOL);
-                const { blockhash } = await solanaConnection.getLatestBlockhash();
+                // Direct transfer from host to winner (TRUST-BASED)
+                const lamports = Math.floor(gameData.prizePool * solanaWeb3.LAMPORTS_PER_SOL);
+                const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                const { blockhash } = await connection.getLatestBlockhash();
 
-                const transaction = new Transaction({
+                const transaction = new solanaWeb3.Transaction({
                     recentBlockhash: blockhash,
                     feePayer: provider.publicKey
                 });
 
-                // Transfer from escrow to winner
+                // Transfer from host (you) to winner
                 transaction.add(
-                    SystemProgram.transfer({
-                        fromPubkey: escrowPDA,
-                        toPubkey: new PublicKey(winnerAddress),
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: provider.publicKey,
+                        toPubkey: new solanaWeb3.PublicKey(winnerAddress),
                         lamports: lamports
                     })
                 );
