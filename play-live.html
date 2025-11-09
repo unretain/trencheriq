@@ -347,10 +347,10 @@
 
         // Get wallet address from local storage
         const provider = window.phantom?.solana;
-        let walletAddress = null;
+        let walletAddress = localStorage.getItem('playerId') || null;
 
         async function init() {
-            if (provider) {
+            if (provider && !walletAddress) {
                 try {
                     const resp = await provider.connect({ onlyIfTrusted: true });
                     walletAddress = resp.publicKey.toString();

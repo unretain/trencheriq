@@ -379,11 +379,14 @@
             updateLeaderboard(leaderboard);
         });
 
-        socket.on('gameFinished', (data) => {
+        socket.on('gameFinished', (leaderboard) => {
             updateGameStatus('finished');
             document.getElementById('playingControls').style.display = 'none';
             document.getElementById('endGameBtn').style.display = 'block';
-            updateLeaderboard(data.leaderboard);
+            if (leaderboard && Array.isArray(leaderboard)) {
+                gameData.leaderboard = leaderboard;
+                updateLeaderboard(leaderboard);
+            }
         });
 
         function updateGameDisplay(data) {
