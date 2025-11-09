@@ -312,9 +312,16 @@ io.on('connection', (socket) => {
 
         socket.join(gameCode);
 
-        if (!game.players.includes(walletAddress) && game.status === 'waiting') {
-            game.players.push(walletAddress);
-            game.answers[walletAddress] = [];
+        // For free games, generate a unique player ID if no wallet
+        let playerIdentifier = walletAddress;
+        if (!playerIdentifier && game.isFreeGame) {
+            playerIdentifier = `player_${socket.id}`;
+        }
+
+        if (playerIdentifier && !game.players.includes(playerIdentifier) && game.status === 'waiting') {
+            game.players.push(playerIdentifier);
+            game.answers[playerIdentifier] = [];
+            console.log(`[JOIN GAME] Player ${playerIdentifier} joined game ${gameCode}`);
         }
 
         // Send game data to player
@@ -346,13 +353,26 @@ io.on('connection', (socket) => {
 
     // Start game
     socket.on('startGame', ({ gameCode }) => {
+        console.log(`[START GAME] Request received for game: ${gameCode}`);
         const game = activeGames.get(gameCode);
-        if (!game || game.status !== 'waiting') return;
 
+        if (!game) {
+            console.log(`[START GAME] ERROR: Game ${gameCode} not found`);
+            return;
+        }
+
+        if (game.status !== 'waiting') {
+            console.log(`[START GAME] ERROR: Game ${gameCode} status is ${game.status}, not waiting`);
+            return;
+        }
+
+        console.log(`[START GAME] Starting game ${gameCode} with ${game.players.length} players`);
         game.status = 'playing';
         game.currentQuestion = 0;
 
         io.to(gameCode).emit('gameStarted');
+        console.log(`[START GAME] Emitted gameStarted to room ${gameCode}`);
+
         io.emit('gameUpdate', {
             code: gameCode,
             status: 'playing',

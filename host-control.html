@@ -392,16 +392,20 @@
 
             if (players.length === 0) {
                 playersGrid.innerHTML = '<div class="empty-players">No players have joined yet</div>';
-                document.getElementById('startGameBtn').disabled = true;
             } else {
-                playersGrid.innerHTML = players.map((player, index) => `
-                    <div class="player-card">
-                        <div class="player-avatar">${index + 1}</div>
-                        <div class="player-address">${player.substring(0, 12)}...</div>
-                    </div>
-                `).join('');
-                document.getElementById('startGameBtn').disabled = false;
+                playersGrid.innerHTML = players.map((player, index) => {
+                    const displayName = player ? `${player.substring(0, 12)}...` : `Player ${index + 1}`;
+                    return `
+                        <div class="player-card">
+                            <div class="player-avatar">${index + 1}</div>
+                            <div class="player-address">${displayName}</div>
+                        </div>
+                    `;
+                }).join('');
             }
+
+            // Always enable start button (can start with 0 players)
+            document.getElementById('startGameBtn').disabled = false;
         }
 
         function updateGameStatus(status) {
