@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trencher IQ Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #chartCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .header, .ca-container, .quiz-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .top-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .link-box {
+            padding: 10px 20px;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .link-box:hover {
+            background-color: #00ff00;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .ca-container {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .ca-label {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+
+        .ca-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ca-input {
+            flex: 1;
+            padding: 12px;
+            background-color: #000;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1em;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            padding: 12px 24px;
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background-color: #00cc00;
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+
+        .question-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #00ff00;
+        }
+
+        .question-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: 20px 0;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            background-color: #000;
+            border: 2px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            border-color: #00ff00;
+            background-color: #0a0a0a;
+        }
+
+        .answer-btn.selected {
+            border-color: #00ff00;
+            background-color: #003300;
+        }
+
+        .answer-btn.correct {
+            border-color: #00ff00;
+            background-color: #004400;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #ff0000;
+            background-color: #440000;
+        }
+
+        .submit-btn {
+            padding: 15px 40px;
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .submit-btn:hover {
+            background-color: #00cc00;
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 2em;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-media {
+            margin: 20px 0;
+        }
+
+        .result-video {
+            max-width: 100%;
+            width: 600px;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+        }
+
+        .result-image {
+            max-width: 100%;
+            width: 600px;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+        }
+
+        .trenching-boss {
+            font-size: 3em;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            font-weight: bold;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #00ff00;
+            position: absolute;
+            animation: fall 3s linear;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.8em;
+            }
+
+            .top-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .question {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="chartCanvas"></canvas>
+    <div class="header">
+        <h1 class="title">TRENCHER IQ TEST</h1>
+        <div class="top-links">
+            <a href="#" class="link-box">Pump.fun</a>
+            <a href="#" class="link-box">X Community</a>
+        </div>
+    </div>
+
+    <div class="ca-container">
+        <div class="ca-label">Contract Address (CA)</div>
+        <div class="ca-box">
+            <input type="text" class="ca-input" value="" readonly id="caInput">
+            <button class="copy-btn" onclick="copyCA()">Copy CA</button>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <div class="question">
+            <h2 class="question-title">Question 1: What is this candle called?</h2>
+            <img src="imagesss.png" alt="Candle chart" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="1" data-answer="1" onclick="selectAnswer(1, 1)">
+                    1. Gake candle
+                </button>
+                <button class="answer-btn" data-question="1" data-answer="2" onclick="selectAnswer(1, 2)">
+                    2. orangie
+                </button>
+                <button class="answer-btn" data-question="1" data-answer="3" onclick="selectAnswer(1, 3)">
+                    3. rugpull
+                </button>
+                <button class="answer-btn" data-question="1" data-answer="4" onclick="selectAnswer(1, 4)">
+                    4. shill me a ticker candle
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 2: Who is this trencher?</h2>
+            <img src="image.png" alt="Trencher" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="2" data-answer="1" onclick="selectAnswer(2, 1)">
+                    1. Unretain
+                </button>
+                <button class="answer-btn" data-question="2" data-answer="2" onclick="selectAnswer(2, 2)">
+                    2. Cented
+                </button>
+                <button class="answer-btn" data-question="2" data-answer="3" onclick="selectAnswer(2, 3)">
+                    3. Cupsey
+                </button>
+                <button class="answer-btn" data-question="2" data-answer="4" onclick="selectAnswer(2, 4)">
+                    4. DV
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 3: Who is this trencher?</h2>
+            <img src="image copy 2.png" alt="Trencher" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="3" data-answer="1" onclick="selectAnswer(3, 1)">
+                    1. TJR
+                </button>
+                <button class="answer-btn" data-question="3" data-answer="2" onclick="selectAnswer(3, 2)">
+                    2. casino
+                </button>
+                <button class="answer-btn" data-question="3" data-answer="3" onclick="selectAnswer(3, 3)">
+                    3. orangie
+                </button>
+                <button class="answer-btn" data-question="3" data-answer="4" onclick="selectAnswer(3, 4)">
+                    4. zrool
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 4: Buy or Sell?</h2>
+            <img src="image copy 3.png" alt="Chart analysis" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="4" data-answer="1" onclick="selectAnswer(4, 1)">
+                    1. Buy
+                </button>
+                <button class="answer-btn" data-question="4" data-answer="2" onclick="selectAnswer(4, 2)">
+                    2. Sell
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 5: What kind of chart is this?</h2>
+            <img src="image copy 4.png" alt="Chart pattern" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="5" data-answer="1" onclick="selectAnswer(5, 1)">
+                    1. a 100x memetoken
+                </button>
+                <button class="answer-btn" data-question="5" data-answer="2" onclick="selectAnswer(5, 2)">
+                    2. rugpull
+                </button>
+                <button class="answer-btn" data-question="5" data-answer="3" onclick="selectAnswer(5, 3)">
+                    3. mooner
+                </button>
+                <button class="answer-btn" data-question="5" data-answer="4" onclick="selectAnswer(5, 4)">
+                    4. trump coin
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 6: Buy or Sell?</h2>
+            <img src="image copy 5.png" alt="Chart analysis" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="6" data-answer="1" onclick="selectAnswer(6, 1)">
+                    1. Buy
+                </button>
+                <button class="answer-btn" data-question="6" data-answer="2" onclick="selectAnswer(6, 2)">
+                    2. Sell
+                </button>
+            </div>
+        </div>
+
+        <div class="question">
+            <h2 class="question-title">Question 7: What kind of trencher is this?</h2>
+            <img src="image copy 6.png" alt="Trencher type" class="question-image">
+            <div class="answers">
+                <button class="answer-btn" data-question="7" data-answer="1" onclick="selectAnswer(7, 1)">
+                    1. a farmer
+                </button>
+                <button class="answer-btn" data-question="7" data-answer="2" onclick="selectAnswer(7, 2)">
+                    2. someone you should copy trade
+                </button>
+                <button class="answer-btn" data-question="7" data-answer="3" onclick="selectAnswer(7, 3)">
+                    3. genz quant
+                </button>
+                <button class="answer-btn" data-question="7" data-answer="4" onclick="selectAnswer(7, 4)">
+                    4. insider telegram in bio
+                </button>
+            </div>
+        </div>
+
+        <button class="submit-btn" onclick="submitQuiz()">Submit Test</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Animated candlestick chart background
+        const canvas = document.getElementById('chartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Chart configuration
+        const candleWidth = 20;
+        const candleSpacing = 35;
+        const startX = 50;
+
+        // Price tracking - USE FULL SCREEN
+        const chartTop = canvas.height * 0.05;      // 5% from top (high price)
+        const chartBottom = canvas.height * 0.95;   // 95% from top (low price)
+        const chartRange = chartBottom - chartTop;
+
+        let currentPrice = chartTop + chartRange * 0.5; // Start at middle
+
+        // Track consecutive candles
+        let consecutiveGreens = 0;
+        let consecutiveReds = 0;
+        let lastWasPump = false; // Track if last candle was a huge pump
+
+        // Scrolling configuration - candles go to 7/8 of screen
+        const maxCandleX = canvas.width * 0.875; // 7/8 of screen
+        let scrollOffset = 0;
+
+        // Completed candles (locked in)
+        const completedCandles = [];
+
+        // Current candle being animated
+        let currentCandle = null;
+        let targetClose = currentPrice;
+
+        // Initialize first candle
+        function initNewCandle() {
+            let moveSize;
+            let forceDirection = null;
+
+            // RULE: If last was a huge pump, force a small red pullback
+            if (lastWasPump) {
+                moveSize = 10 + Math.random() * 15; // Small red with guaranteed body
+                targetClose = currentPrice + moveSize; // Down (remember Y axis)
+                lastWasPump = false;
+            }
+            // RULE: No more than 4 greens in a row
+            else if (consecutiveGreens >= 4) {
+                moveSize = 8 + Math.random() * 20; // Small to medium red with body
+                targetClose = currentPrice + moveSize;
+                forceDirection = 'bear';
+            }
+            // RULE: No more than 4 reds in a row
+            else if (consecutiveReds >= 4) {
+                moveSize = 8 + Math.random() * 20; // Small to medium green with body
+                targetClose = currentPrice - moveSize;
+                forceDirection = 'bull';
+            }
+            // Random: 18% chance of HUGE PUMP
+            else if (Math.random() < 0.18) {
+                moveSize = 50 + Math.random() * 80; // HUGE green candle
+                targetClose = currentPrice - moveSize;
+                lastWasPump = true;
+            }
+            // Random: 15% chance of large dump
+            else if (Math.random() < 0.15) {
+                moveSize = 40 + Math.random() * 70; // Large red candle
+                targetClose = currentPrice + moveSize;
+            }
+            // Normal volatile movement
+            else {
+                // Mix of small, medium, large movements - all with minimum body size
+                const rand = Math.random();
+                if (rand < 0.35) {
+                    // Small move (minimum 5px body)
+                    moveSize = 5 + Math.random() * 15;
+                } else if (rand < 0.70) {
+                    // Medium move
+                    moveSize = 15 + Math.random() * 30;
+                } else {
+                    // Larger move
+                    moveSize = 30 + Math.random() * 50;
+                }
+
+                // Equal mean reversion: no bias, symmetric top and bottom
+                const priceRatio = (currentPrice - chartTop) / chartRange; // 0 = top, 1 = bottom
+                let directionBias = 0.5; // Default 50/50
+
+                if (priceRatio < 0.15) {
+                    // Too high (low Y value), strong bias downward (higher Y)
+                    directionBias = 0.2; // 20% chance to go higher (lower Y), 80% to go lower (higher Y)
+                } else if (priceRatio < 0.35) {
+                    // Moderately high, slight bias downward
+                    directionBias = 0.4; // 40% up, 60% down
+                } else if (priceRatio > 0.85) {
+                    // Too low (high Y value), strong bias upward (lower Y)
+                    directionBias = 0.8; // 80% chance to go higher (lower Y), 20% to go lower (higher Y)
+                } else if (priceRatio > 0.65) {
+                    // Moderately low, slight bias upward
+                    directionBias = 0.6; // 60% up, 40% down
+                }
+
+                const goUp = Math.random() < directionBias;
+                targetClose = currentPrice + (goUp ? -moveSize : moveSize);
+            }
+
+            // Keep within bounds
+            targetClose = Math.max(chartTop, Math.min(chartBottom, targetClose));
+
+            // Ensure minimum body size of 3px
+            const bodySize = Math.abs(targetClose - currentPrice);
+            if (bodySize < 3) {
+                // Force at least 3px movement
+                const direction = targetClose < currentPrice ? -1 : 1;
+                targetClose = currentPrice + (direction * 5);
+                targetClose = Math.max(chartTop, Math.min(chartBottom, targetClose));
+            }
+
+            const isBullish = targetClose < currentPrice; // Remember: lower Y = higher price
+
+            // Update consecutive counters
+            if (isBullish) {
+                consecutiveGreens++;
+                consecutiveReds = 0;
+            } else {
+                consecutiveReds++;
+                consecutiveGreens = 0;
+            }
+
+            currentCandle = {
+                open: currentPrice,
+                close: currentPrice,
+                high: currentPrice,
+                low: currentPrice,
+                targetClose: targetClose,
+                isBullish: isBullish,
+                startTime: Date.now()
+            };
+        }
+
+        // Draw a single candle
+        function drawCandle(candle, x) {
+            const centerX = x + candleWidth / 2;
+            const isGreen = candle.close <= candle.open; // Y axis is inverted (lower Y = higher price)
+            const color = isGreen ? '#00ff00' : '#ff0000';
+
+            // Draw wick (shorter wicks)
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, candle.high);
+            ctx.lineTo(centerX, candle.low);
+            ctx.stroke();
+
+            // Draw body
+            const bodyTop = Math.min(candle.open, candle.close);
+            const bodyHeight = Math.abs(candle.close - candle.open);
+
+            if (bodyHeight < 2) {
+                // Doji candle - draw horizontal line
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, candle.open);
+                ctx.lineTo(x + candleWidth, candle.open);
+                ctx.stroke();
+            } else {
+                // Regular candle body
+                ctx.fillStyle = color;
+                ctx.fillRect(x, bodyTop, candleWidth, bodyHeight);
+            }
+        }
+
+        // Animate current candle
+        function animateCurrentCandle() {
+            if (!currentCandle) {
+                initNewCandle();
+                return;
+            }
+
+            const elapsed = Date.now() - currentCandle.startTime;
+            const progress = Math.min(elapsed / 130, 1); // 0 to 1 over 0.13 seconds
+
+            // Smoothly move close price toward target
+            currentCandle.close = currentCandle.open + (currentCandle.targetClose - currentCandle.open) * progress;
+
+            // Add small realistic wicks
+            const wickSize = 3 + Math.sin(Date.now() / 150) * 2;
+
+            if (currentCandle.isBullish) {
+                // Bullish: close is higher (lower Y value)
+                currentCandle.high = Math.min(currentCandle.open, currentCandle.close) - wickSize;
+                currentCandle.low = Math.max(currentCandle.open, currentCandle.close) + wickSize * 0.4;
+            } else {
+                // Bearish: close is lower (higher Y value)
+                currentCandle.high = Math.min(currentCandle.open, currentCandle.close) - wickSize * 0.4;
+                currentCandle.low = Math.max(currentCandle.open, currentCandle.close) + wickSize;
+            }
+
+            // If 0.13 seconds has passed, lock this candle and start a new one
+            if (progress >= 1) {
+                // Finalize the candle
+                currentCandle.close = currentCandle.targetClose;
+
+                completedCandles.push({
+                    open: currentCandle.open,
+                    close: currentCandle.close,
+                    high: currentCandle.high,
+                    low: currentCandle.low
+                });
+
+                // Update current price to this candle's close
+                currentPrice = currentCandle.close;
+
+                // Simple scrolling: once we have enough candles to reach 7/8, start removing old ones
+                const currentCandleX = startX + (completedCandles.length - 1) * candleSpacing - scrollOffset;
+
+                if (currentCandleX >= maxCandleX && completedCandles.length > 0) {
+                    // We've reached the scroll point, remove oldest candle
+                    completedCandles.shift();
+                    // Don't change scrollOffset - the array shift naturally moves everything
+                }
+
+                // Start new candle
+                initNewCandle();
+            }
+        }
+
+        // Draw entire chart
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw all completed candles with scroll offset
+            completedCandles.forEach((candle, index) => {
+                const x = startX + index * candleSpacing - scrollOffset;
+                if (x + candleWidth > 0 && x < canvas.width) { // Only draw visible candles
+                    drawCandle(candle, x);
+                }
+            });
+
+            // Draw current animating candle with scroll offset
+            if (currentCandle) {
+                const currentX = startX + completedCandles.length * candleSpacing - scrollOffset;
+                drawCandle(currentCandle, currentX);
+            }
+
+            // Continue animation
+            animateCurrentCandle();
+            requestAnimationFrame(draw);
+        }
+
+        // Start animation
+        draw();
+
+        // Quiz functionality
+        const totalQuestions = 7;
+
+        const answers = {
+            1: null,
+            2: null,
+            3: null,
+            4: null,
+            5: null,
+            6: null,
+            7: null
+        };
+
+        const correctAnswers = {
+            1: 1, // Gake candle
+            2: 3, // Cupsey
+            3: 3, // orangie
+            4: 2, // Sell
+            5: 2, // rugpull
+            6: 1, // Buy
+            7: 1  // a farmer
+        };
+
+        function selectAnswer(question, answer) {
+            answers[question] = answer;
+
+            // Remove selected class from all answers in this question
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Add selected class to clicked answer
+            event.target.classList.add('selected');
+        }
+
+        function submitQuiz() {
+            if (answers[1] === null || answers[2] === null || answers[3] === null || answers[4] === null || answers[5] === null || answers[6] === null || answers[7] === null) {
+                alert('Please answer all questions before submitting!');
+                return;
+            }
+
+            let score = 0;
+
+            // Check and mark answers
+            for (let q = 1; q <= totalQuestions; q++) {
+                const answerBtns = document.querySelectorAll(`[data-question="${q}"]`);
+                answerBtns.forEach(btn => {
+                    const answer = parseInt(btn.dataset.answer);
+                    if (answer === correctAnswers[q]) {
+                        btn.classList.add('correct');
+                    } else if (answer === answers[q]) {
+                        btn.classList.add('incorrect');
+                    }
+                    btn.disabled = true;
+                });
+
+                if (answers[q] === correctAnswers[q]) {
+                    score++;
+                }
+            }
+
+            // Calculate IQ based on score
+            const percentage = (score / totalQuestions) * 100;
+            let iq;
+            if (percentage === 100) {
+                iq = 140; // Perfect score
+            } else if (percentage >= 85) {
+                iq = 111 + Math.round((percentage - 85) / 15 * 19); // 111-130
+            } else if (percentage >= 71) {
+                iq = 90 + Math.round((percentage - 71) / 14 * 20); // 90-110
+            } else if (percentage >= 57) {
+                iq = 70 + Math.round((percentage - 57) / 14 * 20); // 70-90
+            } else {
+                iq = 50 + Math.round(percentage / 57 * 20); // Below 70
+            }
+
+            // Show result
+            const resultDiv = document.getElementById('result');
+            let message = '';
+            let mediaHTML = '';
+
+            if (score === 7) {
+                // Perfect score - highest IQ
+                message = '🎉 PERFECT SCORE! You are a TRUE TRENCHER! 🎉';
+                mediaHTML = `
+                    <div class="trenching-boss">TRENCHING BOSS</div>
+                    <div class="result-media">
+                        <img src="image copy 11.png" alt="Perfect score" class="result-image">
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 20px;">Your Trencher IQ: ${iq}</div>
+                `;
+                // Create confetti
+                createConfetti();
+            } else if (score === 6) {
+                // 111-130 IQ range
+                message = '👍 Great job! You got ' + score + '/7 correct!';
+                mediaHTML = `
+                    <div class="result-media">
+                        <img src="image copy 10.png" alt="High IQ" class="result-image">
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 20px;">Your Trencher IQ: ${iq}</div>
+                `;
+            } else if (score === 5) {
+                // 90-110 IQ range
+                message = '👍 Not bad! You got ' + score + '/7 correct!';
+                mediaHTML = `
+                    <div class="result-media">
+                        <img src="image copy 8.png" alt="Average IQ" class="result-image">
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 20px;">Your Trencher IQ: ${iq}</div>
+                `;
+            } else if (score === 4) {
+                // 70-90 IQ range
+                message = '😅 You got ' + score + '/7 correct. Keep learning!';
+                mediaHTML = `
+                    <div class="result-media">
+                        <img src="image copy 7.png" alt="Below average IQ" class="result-image">
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 20px;">Your Trencher IQ: ${iq}</div>
+                `;
+            } else {
+                // Below 60 IQ - show video
+                message = '😅 You got ' + score + '/7 correct. Keep learning!';
+                mediaHTML = `
+                    <div class="result-media">
+                        <video class="result-video" autoplay loop muted>
+                            <source src="ssstwitter.com_1762651774182.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 20px;">Your Trencher IQ: ${iq}</div>
+                `;
+            }
+
+            resultDiv.innerHTML = `
+                <div>${message}</div>
+                ${mediaHTML}
+            `;
+            resultDiv.classList.add('show');
+
+            // Disable submit button
+            event.target.disabled = true;
+        }
+
+        function createConfetti() {
+            const colors = ['#00ff00', '#00cc00', '#00aa00', '#ffff00', '#ff00ff'];
+            const confettiCount = 100;
+
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+        }
+
+        function copyCA() {
+            const caInput = document.getElementById('caInput');
+            if (caInput.value === '') {
+                alert('No CA available to copy yet!');
+                return;
+            }
+
+            caInput.select();
+            document.execCommand('copy');
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
