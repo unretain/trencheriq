@@ -557,11 +557,11 @@ function startQuestion(gameCode, questionIndex) {
         clearTimeout(questionTimers.get(gameCode));
     }
 
-    // Set 30-second auto-end timer
+    // Set 7-second auto-end timer
     const timer = setTimeout(() => {
-        console.log(`[QUESTION] 30s timer expired for game ${gameCode}, question ${questionIndex}`);
+        console.log(`[QUESTION] 7s timer expired for game ${gameCode}, question ${questionIndex}`);
         endQuestion(gameCode, questionIndex);
-    }, 30000);
+    }, 7000);
 
     questionTimers.set(gameCode, timer);
 }

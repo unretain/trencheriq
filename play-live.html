@@ -433,8 +433,8 @@
             document.getElementById('questionScreen').classList.add('active');
             document.getElementById('leaderboardScreen').classList.remove('active');
 
-            // Start timer (30 seconds per question)
-            startTimer(30);
+            // Start timer (7 seconds per question)
+            startTimer(7);
         }
 
         let timerInterval;
@@ -479,17 +479,16 @@
 
         function showAnswerResults(correctAnswerIndex) {
             const buttons = document.querySelectorAll('.answer-btn');
-            buttons[correctAnswerIndex].classList.add('correct');
+
+            // Safety check - make sure buttons exist and index is valid
+            if (buttons && buttons.length > correctAnswerIndex && buttons[correctAnswerIndex]) {
+                buttons[correctAnswerIndex].classList.add('correct');
+            }
 
             const selectedBtn = document.querySelector('.answer-btn.selected');
             if (selectedBtn && !selectedBtn.classList.contains('correct')) {
                 selectedBtn.classList.add('incorrect');
             }
-
-            // Wait 3 seconds before next question
-            setTimeout(() => {
-                // Host will trigger next question
-            }, 3000);
         }
 
         function showLeaderboard(leaderboard) {
