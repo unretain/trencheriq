@@ -285,7 +285,8 @@ app.post('/api/games/:code/join', (req, res) => {
             return res.status(404).json({ error: 'Game not found' });
         }
 
-        if (game.status !== 'waiting') {
+        // Allow joining during 'waiting' OR 'starting' (countdown phase)
+        if (game.status !== 'waiting' && game.status !== 'starting') {
             return res.status(400).json({ error: 'Game has already started' });
         }
 
@@ -319,10 +320,11 @@ io.on('connection', (socket) => {
             playerIdentifier = `player_${socket.id}`;
         }
 
-        if (playerIdentifier && !game.players.includes(playerIdentifier) && game.status === 'waiting') {
+        // Allow joining during 'waiting' OR 'starting' phase
+        if (playerIdentifier && !game.players.includes(playerIdentifier) && (game.status === 'waiting' || game.status === 'starting')) {
             game.players.push(playerIdentifier);
             game.answers[playerIdentifier] = [];
-            console.log(`[JOIN GAME] Player ${playerIdentifier} joined game ${gameCode}`);
+            console.log(`[JOIN GAME] Player ${playerIdentifier} joined game ${gameCode} (status: ${game.status})`);
         }
 
         // Send game data to player
@@ -367,15 +369,24 @@ io.on('connection', (socket) => {
             return;
         }
 
-        console.log(`[START GAME] Starting game ${gameCode} with ${game.players.length} players`);
-        game.status = 'playing';
+        // Don't allow starting with 0 players (like Kahoot)
+        if (game.players.length === 0) {
+            console.log(`[START GAME] ERROR: Cannot start game ${gameCode} with 0 players`);
+            socket.emit('startError', { message: 'At least 1 player must join before starting the game' });
+            return;
+        }
 
-        io.to(gameCode).emit('gameStarted');
-        console.log(`[START GAME] Emitted gameStarted to room ${gameCode}`);
+        console.log(`[START GAME] Starting game ${gameCode} with ${game.players.length} players`);
+
+        // Set to 'starting' during countdown (players can still join during this phase)
+        game.status = 'starting';
+
+        io.to(gameCode).emit('gameStarting', { countdown: 5 });
+        console.log(`[START GAME] Game ${gameCode} countdown started (5 seconds)...`);
 
         io.emit('gameUpdate', {
             code: gameCode,
-            status: 'playing',
+            status: 'starting',
             quizTitle: game.quiz.title,
             host: game.hostWallet,
             prizePool: game.prizePool,
@@ -383,10 +394,25 @@ io.on('connection', (socket) => {
             questionCount: game.quiz.questions.length
         });
 
-        // Auto-start first question after 2 seconds
+        // 5-second countdown, then lock game and start first question
         setTimeout(() => {
+            game.status = 'playing';
+            io.to(gameCode).emit('gameStarted');
+
+            io.emit('gameUpdate', {
+                code: gameCode,
+                status: 'playing',
+                quizTitle: game.quiz.title,
+                host: game.hostWallet,
+                prizePool: game.prizePool,
+                players: game.players.length,
+                questionCount: game.quiz.questions.length
+            });
+
+            console.log(`[START GAME] Game ${gameCode} LOCKED - starting first question`);
+            // Start first question
             startQuestion(gameCode, 0);
-        }, 2000);
+        }, 5000);
     });
 
     // Submit answer
