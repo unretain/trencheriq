@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Quiz - Trencher IQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .navbar {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            font-size: 2em;
+            color: #00ff00;
+        }
+
+        .nav-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 10px 18px;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .nav-link:hover {
+            background-color: #00ff00;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .nav-divider {
+            width: 2px;
+            height: 30px;
+            background-color: #00ff00;
+            opacity: 0.3;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .quiz-meta {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .question {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .question-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #00ff00;
+        }
+
+        .question-media {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            background-color: #000;
+            border: 2px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            border-color: #00ff00;
+            background-color: #0a0a0a;
+        }
+
+        .answer-btn.selected {
+            border-color: #00ff00;
+            background-color: #003300;
+        }
+
+        .answer-btn.correct {
+            border-color: #00ff00;
+            background-color: #004400;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #ff0000;
+            background-color: #440000;
+        }
+
+        .submit-btn {
+            padding: 15px 40px;
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .submit-btn:hover {
+            background-color: #00cc00;
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 30px;
+            padding: 30px;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-score {
+            font-size: 2em;
+            color: #00ff00;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.5em;
+            color: #00ff00;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <a href="index.html" class="nav-brand">
+                <span class="nav-logo">🧠</span>
+                <span class="nav-title">TRENCHER IQ</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Official Quiz</a>
+                <a href="browse.html" class="nav-link">Browse Quizzes</a>
+                <a href="create.html" class="nav-link">Create Quiz</a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link">Pump.fun</a>
+                <a href="#" class="nav-link">X Community</a>
+            </div>
+        </nav>
+
+        <div id="loading" class="loading">Loading quiz...</div>
+
+        <div id="quizContainer" style="display: none;">
+            <div class="header">
+                <h1 class="page-title" id="quizTitle"></h1>
+                <div class="quiz-meta" id="quizMeta"></div>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitQuiz()">Submit Quiz</button>
+
+            <div class="result" id="result">
+                <div id="resultMessage"></div>
+                <div class="result-score" id="resultScore"></div>
+                <button class="submit-btn" onclick="window.location.href='browse.html'">Try Another Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let quizData = null;
+        let userAnswers = {};
+
+        async function loadQuiz() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizId = urlParams.get('id');
+
+            if (!quizId) {
+                document.getElementById('loading').textContent = 'No quiz ID provided';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/quizzes/${quizId}`);
+
+                if (!response.ok) {
+                    document.getElementById('loading').textContent = 'Quiz not found';
+                    return;
+                }
+
+                quizData = await response.json();
+
+                // Increment play count
+                fetch(`/api/quizzes/${quizId}/play`, { method: 'POST' });
+
+                renderQuiz();
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Failed to load quiz';
+            }
+        }
+
+        function renderQuiz() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+
+            document.getElementById('quizTitle').textContent = quizData.title;
+
+            const createdDate = new Date(quizData.createdAt).toLocaleDateString();
+            document.getElementById('quizMeta').textContent = `By ${quizData.creator} • ${createdDate}`;
+
+            const container = document.getElementById('questionsContainer');
+
+            quizData.questions.forEach((question, qIndex) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+
+                let mediaHTML = '';
+                if (question.media) {
+                    if (question.media.match(/\.(mp4|webm|ogg)$/i)) {
+                        mediaHTML = `<video class="question-media" controls><source src="${question.media}" type="video/mp4"></video>`;
+                    } else {
+                        mediaHTML = `<img src="${question.media}" alt="Question image" class="question-media">`;
+                    }
+                }
+
+                const answersHTML = question.answers.map((answer, aIndex) => {
+                    return `<button class="answer-btn" onclick="selectAnswer(${qIndex}, ${aIndex + 1})" data-question="${qIndex}" data-answer="${aIndex + 1}">${aIndex + 1}. ${escapeHtml(answer)}</button>`;
+                }).join('');
+
+                questionDiv.innerHTML = `
+                    <h2 class="question-title">Question ${qIndex + 1}: ${escapeHtml(question.text)}</h2>
+                    ${mediaHTML}
+                    <div class="answers">
+                        ${answersHTML}
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function selectAnswer(questionIndex, answerIndex) {
+            userAnswers[questionIndex] = answerIndex;
+
+            // Remove selected class from all answers in this question
+            document.querySelectorAll(`[data-question="${questionIndex}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Add selected class to clicked answer
+            event.target.classList.add('selected');
+        }
+
+        function submitQuiz() {
+            const totalQuestions = quizData.questions.length;
+
+            // Check if all questions are answered
+            if (Object.keys(userAnswers).length < totalQuestions) {
+                alert('Please answer all questions before submitting!');
+                return;
+            }
+
+            let score = 0;
+
+            // Check and mark answers
+            quizData.questions.forEach((question, qIndex) => {
+                const correctAnswer = question.correctAnswer;
+                const userAnswer = userAnswers[qIndex];
+
+                const answerBtns = document.querySelectorAll(`[data-question="${qIndex}"]`);
+                answerBtns.forEach(btn => {
+                    const answerNum = parseInt(btn.dataset.answer);
+
+                    if (answerNum === correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (answerNum === userAnswer) {
+                        btn.classList.add('incorrect');
+                    }
+
+                    btn.disabled = true;
+                });
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                }
+            });
+
+            // Show result
+            const percentage = (score / totalQuestions) * 100;
+            let message = '';
+
+            if (percentage === 100) {
+                message = '🎉 PERFECT SCORE! 🎉';
+            } else if (percentage >= 80) {
+                message = '👍 Great job!';
+            } else if (percentage >= 60) {
+                message = '👍 Not bad!';
+            } else {
+                message = '😅 Keep practicing!';
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = `You scored ${score}/${totalQuestions} (${Math.round(percentage)}%)`;
+            document.getElementById('result').classList.add('show');
+
+            // Disable submit button
+            document.getElementById('submitBtn').disabled = true;
+
+            // Scroll to result
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load quiz on page load
+        loadQuiz();
+    </script>
+</body>
+</html>

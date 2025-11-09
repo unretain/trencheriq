@@ -37,42 +37,87 @@
             z-index: 1;
         }
 
-        .header {
+        .navbar {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .title {
-            font-size: 2.5em;
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            font-size: 2em;
+            color: #00ff00;
+        }
+
+        .nav-title {
+            font-size: 1.5em;
             font-weight: bold;
             color: #00ff00;
             text-shadow: 0 0 10px #00ff00;
         }
 
-        .top-links {
+        .nav-links {
             display: flex;
-            gap: 15px;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .link-box {
-            padding: 10px 20px;
-            background-color: #1a1a1a;
+        .nav-link {
+            padding: 10px 18px;
+            background-color: #000;
             border: 2px solid #00ff00;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             color: #fff;
+            font-weight: 500;
+            font-size: 0.95em;
         }
 
-        .link-box:hover {
+        .nav-link:hover {
             background-color: #00ff00;
             color: #000;
             transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .nav-divider {
+            width: 2px;
+            height: 30px;
+            background-color: #00ff00;
+            opacity: 0.3;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 10px;
         }
 
         .ca-container {
@@ -302,12 +347,24 @@
 </head>
 <body>
     <canvas id="chartCanvas"></canvas>
-    <div class="header">
-        <h1 class="title">TRENCHER IQ TEST</h1>
-        <div class="top-links">
-            <a href="#" class="link-box">Pump.fun</a>
-            <a href="#" class="link-box">X Community</a>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-logo">🧠</span>
+            <span class="nav-title">TRENCHER IQ</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link active">Official Quiz</a>
+            <a href="browse.html" class="nav-link">Browse Quizzes</a>
+            <a href="create.html" class="nav-link">Create Quiz</a>
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-link">Pump.fun</a>
+            <a href="#" class="nav-link">X Community</a>
         </div>
+    </nav>
+
+    <div class="header">
+        <h1 class="page-title">OFFICIAL TRENCHER IQ TEST</h1>
     </div>
 
     <div class="ca-container">
