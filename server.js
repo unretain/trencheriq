@@ -471,6 +471,15 @@ io.on('connection', (socket) => {
         const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
         const isCorrect = answerIndex === correctAnswerIndex;
 
+        // Debug logging
+        console.log(`[ANSWER DEBUG] Question: "${question.question}"`);
+        console.log(`[ANSWER DEBUG] Answers array: ${JSON.stringify(question.answers)}`);
+        console.log(`[ANSWER DEBUG] Correct answer text: "${question.correctAnswer}"`);
+        console.log(`[ANSWER DEBUG] Correct answer index: ${correctAnswerIndex}`);
+        console.log(`[ANSWER DEBUG] Player selected index: ${answerIndex}`);
+        console.log(`[ANSWER DEBUG] Player selected text: "${question.answers[answerIndex]}"`);
+        console.log(`[ANSWER DEBUG] Is correct? ${isCorrect}`);
+
         // Calculate score (1000 points for correct + speed bonus)
         const score = isCorrect ? 1000 + Math.floor(speedBonus) : 0;
 

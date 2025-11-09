@@ -436,7 +436,7 @@
                         <div class="leaderboard-title">TOP PLAYERS</div>
                         ${topPlayers.map((player, index) => `
                             <div class="leaderboard-item">
-                                <span class="player-name">${index + 1}. ${player.address.substring(0, 8)}...</span>
+                                <span class="player-name">${index + 1}. ${player.name || player.address?.substring(0, 8) || 'Anonymous'}</span>
                                 <span class="player-score">${player.score} pts</span>
                             </div>
                         `).join('')}
@@ -458,7 +458,7 @@
                         <div class="game-status ${statusClass}">${statusText}</div>
                     </div>
                     <div class="game-title">${game.quizTitle}</div>
-                    <div class="game-info">Host: ${game.host.substring(0, 8)}...${game.host.substring(game.host.length - 8)}</div>
+                    <div class="game-info">Host: ${game.host ? game.host.substring(0, 8) + '...' + game.host.substring(game.host.length - 8) : 'Anonymous'}</div>
                     <div class="game-info">Questions: ${game.questionCount}</div>
                     <div class="prize-display">
                         <div class="prize-label">PRIZE POOL</div>
