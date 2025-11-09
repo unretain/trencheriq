@@ -355,13 +355,10 @@
         </div>
     </div>
 
-    <script type="module">
-        import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.0/+esm';
-
+    <script>
         let walletAddress = null;
         let quizzes = [];
         let isPrizeGame = false;
-        let solanaConnection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
         const freeGameBtn = document.getElementById('freeGameBtn');
         const prizeGameBtn = document.getElementById('prizeGameBtn');
