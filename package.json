@@ -1,0 +1,12 @@
+{
+  "name": "trencheriq",
+  "version": "1.0.0",
+  "description": "Trencher IQ Test",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p ${PORT:-8080}"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}
