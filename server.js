@@ -59,6 +59,7 @@ if (!fs.existsSync(QUIZZES_FILE)) {
 
 // In-memory game storage
 const activeGames = new Map();
+const questionTimers = new Map(); // Store timers for each game
 
 // Generate 6-digit game code
 function generateGameCode() {
@@ -368,7 +369,6 @@ io.on('connection', (socket) => {
 
         console.log(`[START GAME] Starting game ${gameCode} with ${game.players.length} players`);
         game.status = 'playing';
-        game.currentQuestion = 0;
 
         io.to(gameCode).emit('gameStarted');
         console.log(`[START GAME] Emitted gameStarted to room ${gameCode}`);
@@ -382,6 +382,11 @@ io.on('connection', (socket) => {
             players: game.players.length,
             questionCount: game.quiz.questions.length
         });
+
+        // Auto-start first question after 2 seconds
+        setTimeout(() => {
+            startQuestion(gameCode, 0);
+        }, 2000);
     });
 
     // Submit answer
@@ -407,39 +412,19 @@ io.on('connection', (socket) => {
             timestamp: Date.now()
         };
 
-        // Update leaderboard
-        updateLeaderboard(game);
+        console.log(`[ANSWER] Player ${walletAddress} answered question ${questionIndex + 1} - ${isCorrect ? 'CORRECT' : 'WRONG'} (Score: ${score})`);
 
-        // Notify host about answers received
-        const answersForQuestion = Object.values(game.answers).filter(
-            answers => answers[questionIndex] !== undefined
-        );
-        io.to(gameCode).emit('answersReceived', answersForQuestion);
-        io.to(gameCode).emit('leaderboardUpdate', game.leaderboard);
+        // Check if all players have answered
+        if (checkAllPlayersAnswered(gameCode, questionIndex)) {
+            // End question immediately when all players answered
+            endQuestion(gameCode, questionIndex);
+        }
     });
 
-    // Next question
+    // Next question (DEPRECATED - now automatic, kept for compatibility)
     socket.on('nextQuestion', ({ gameCode, questionIndex }) => {
-        const game = activeGames.get(gameCode);
-        if (!game) return;
-
-        const question = game.quiz.questions[questionIndex];
-        const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
-
-        // Send correct answer to all players
-        io.to(gameCode).emit('questionEnd', { correctAnswer: correctAnswerIndex });
-
-        // Wait 3 seconds then move to next question or end game
-        setTimeout(() => {
-            game.currentQuestion = questionIndex + 1;
-
-            if (questionIndex + 1 < game.quiz.questions.length) {
-                io.to(gameCode).emit('nextQuestion', questionIndex + 1);
-            } else {
-                // Game finished
-                finishGame(gameCode);
-            }
-        }, 3000);
+        console.log(`[WARNING] Manual nextQuestion called for game ${gameCode} - this is now automatic`);
+        // Do nothing - progression is now automatic
     });
 
     // Finish game
@@ -506,10 +491,99 @@ function updateLeaderboard(game) {
     game.leaderboard = leaderboard;
 }
 
+// Helper function to start a question with automatic timer
+function startQuestion(gameCode, questionIndex) {
+    const game = activeGames.get(gameCode);
+    if (!game) return;
+
+    console.log(`[QUESTION] Starting question ${questionIndex + 1} for game ${gameCode}`);
+    game.currentQuestion = questionIndex;
+    game.questionStartTime = Date.now();
+
+    // Emit to all players
+    io.to(gameCode).emit('nextQuestion', questionIndex);
+
+    // Clear any existing timer
+    if (questionTimers.has(gameCode)) {
+        clearTimeout(questionTimers.get(gameCode));
+    }
+
+    // Set 30-second auto-end timer
+    const timer = setTimeout(() => {
+        console.log(`[QUESTION] 30s timer expired for game ${gameCode}, question ${questionIndex}`);
+        endQuestion(gameCode, questionIndex);
+    }, 30000);
+
+    questionTimers.set(gameCode, timer);
+}
+
+// Helper function to end a question and move to next
+function endQuestion(gameCode, questionIndex) {
+    const game = activeGames.get(gameCode);
+    if (!game) return;
+
+    // Clear timer
+    if (questionTimers.has(gameCode)) {
+        clearTimeout(questionTimers.get(gameCode));
+        questionTimers.delete(gameCode);
+    }
+
+    console.log(`[QUESTION] Ending question ${questionIndex + 1} for game ${gameCode}`);
+
+    const question = game.quiz.questions[questionIndex];
+    const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
+
+    // Update leaderboard
+    updateLeaderboard(game);
+
+    // Send correct answer and leaderboard to all players
+    io.to(gameCode).emit('questionEnd', {
+        correctAnswer: correctAnswerIndex,
+        leaderboard: game.leaderboard
+    });
+
+    // Wait 3 seconds to show answer, then move to next question
+    setTimeout(() => {
+        if (questionIndex + 1 < game.quiz.questions.length) {
+            // Start next question
+            startQuestion(gameCode, questionIndex + 1);
+        } else {
+            // Game finished
+            console.log(`[GAME] Game ${gameCode} finished`);
+            finishGame(gameCode);
+        }
+    }, 3000);
+}
+
+// Helper function to check if all players have answered
+function checkAllPlayersAnswered(gameCode, questionIndex) {
+    const game = activeGames.get(gameCode);
+    if (!game) return false;
+
+    const answersForQuestion = game.players.filter(player => {
+        return game.answers[player] && game.answers[player][questionIndex] !== undefined;
+    });
+
+    console.log(`[ANSWERS] ${answersForQuestion.length}/${game.players.length} players answered question ${questionIndex + 1}`);
+
+    if (answersForQuestion.length === game.players.length) {
+        console.log(`[ANSWERS] All players answered! Auto-progressing...`);
+        return true;
+    }
+
+    return false;
+}
+
 // Helper function to finish game
 function finishGame(gameCode) {
     const game = activeGames.get(gameCode);
     if (!game) return;
+
+    // Clear any remaining timers
+    if (questionTimers.has(gameCode)) {
+        clearTimeout(questionTimers.get(gameCode));
+        questionTimers.delete(gameCode);
+    }
 
     game.status = 'finished';
     updateLeaderboard(game);
