@@ -4,18 +4,41 @@ const path = require('path');
 const multer = require('multer');
 const http = require('http');
 const socketIO = require('socket.io');
+const cors = require('cors');
 const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+
+// Socket.io with CORS for production (Railway + custom domain)
+const io = socketIO(server, {
+    cors: {
+        origin: process.env.CLIENT_URL || '*',
+        methods: ['GET', 'POST'],
+        credentials: true
+    },
+    transports: ['websocket', 'polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000
+});
+
 const PORT = process.env.PORT || 8080;
 
 // Solana connection (mainnet-beta for production)
 const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'https://api.mainnet-beta.solana.com';
 const solanaConnection = new Connection(SOLANA_NETWORK, 'confirmed');
 
+// CORS configuration for production
+const corsOptions = {
+    origin: process.env.CLIENT_URL || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 // Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(__dirname));
 

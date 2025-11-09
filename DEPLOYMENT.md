@@ -1,273 +1,216 @@
-# Trencher IQ - Solana Escrow Deployment Guide
+# 🚀 Trencher IQ - Railway Deployment Guide
 
-This guide explains how to deploy the Trencher IQ escrow smart contract to Solana mainnet.
+## Current Status
+✅ **Deployed on Railway**
+✅ **Production-Ready Server**
+✅ **Multiple Device Support**
+✅ **WebSocket/Socket.io Configured**
 
-## Prerequisites
+---
 
-1. **Install Rust**
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   source $HOME/.cargo/env
-   rustup component add rustfmt
-   ```
+## 📋 What's Already Done
 
-2. **Install Solana CLI**
-   ```bash
-   sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-   ```
+### ✅ Server Configuration
+- CORS enabled for cross-origin requests
+- Socket.io configured for multiple transports (WebSocket + Polling)
+- Environment variables support
+- Automatic port detection from Railway
+- Production-ready error handling
 
-3. **Install Anchor**
-   ```bash
-   cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-   avm install latest
-   avm use latest
-   ```
+### ✅ Features Working
+- Real-time multiplayer games
+- WebSocket connections
+- 6-digit game codes
+- Free & Prize games
+- Automatic game progression
+- Solana wallet integration
+- Live leaderboards
 
-## Setup Wallet
+---
 
-1. **Create a new wallet** (or use existing):
-   ```bash
-   solana-keygen new --outfile ~/.config/solana/deployer.json
-   ```
+## 🌐 Setup Your Custom Domain
 
-2. **Set Solana to mainnet**:
-   ```bash
-   solana config set --url https://api.mainnet-beta.solana.com
-   ```
+### Step 1: Get Your Railway URL
+1. Go to your Railway dashboard
+2. Find your deployment
+3. Copy the URL (e.g., `https://trencheriq-production.up.railway.app`)
 
-3. **Fund your wallet** with SOL for deployment (approximately 2-5 SOL needed):
-   ```bash
-   solana address
-   # Send SOL to this address from an exchange or another wallet
-   ```
+### Step 2: Add Custom Domain on Railway
+1. In Railway dashboard → Click your project
+2. Go to **Settings** tab
+3. Click **Domains** section
+4. Click **Custom Domain**
+5. Enter your domain (e.g., `trencheriq.com` or `play.trencheriq.com`)
 
-4. **Check balance**:
-   ```bash
-   solana balance
-   ```
+### Step 3: Configure DNS (At Your Domain Registrar)
+Add these DNS records:
 
-## Build the Program
+**Option A: Root Domain (trencheriq.com)**
+```
+Type: CNAME
+Name: @
+Value: your-app.up.railway.app
+TTL: Auto or 3600
+```
 
-1. **Navigate to project directory**:
-   ```bash
-   cd /path/to/trencheriq
-   ```
+**Option B: Subdomain (play.trencheriq.com)**
+```
+Type: CNAME
+Name: play
+Value: your-app.up.railway.app
+TTL: Auto or 3600
+```
 
-2. **Build the Anchor program**:
-   ```bash
-   anchor build
-   ```
+### Step 4: Update Environment Variable (Optional)
+In Railway dashboard:
+1. Go to **Variables** tab
+2. Add variable:
+   - Name: `CLIENT_URL`
+   - Value: `https://your-domain.com`
 
-   This will compile the Rust program in `programs/trencher-escrow/src/lib.rs`
+*Note: Not required - server accepts all origins by default*
 
-3. **Get the program ID**:
-   ```bash
-   solana address -k target/deploy/trencher_escrow-keypair.json
-   ```
+---
 
-   Copy this address (it will look like: `TrenchXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
+## 🔧 Environment Variables on Railway
 
-4. **Update the program ID** in two places:
-   - In `programs/trencher-escrow/src/lib.rs` - Line 4: `declare_id!("YOUR_PROGRAM_ID");`
-   - In `Anchor.toml` - Line 7: `trencher_escrow = "YOUR_PROGRAM_ID"`
-   - In `escrow-client.js` - Line 14: `const PROGRAM_ID = new PublicKey('YOUR_PROGRAM_ID');`
+### Required (Auto-Set by Railway)
+- `PORT` - Railway sets this automatically
 
-5. **Rebuild after updating program ID**:
-   ```bash
-   anchor build
-   ```
-
-## Deploy to Mainnet
-
-1. **Deploy the program**:
-   ```bash
-   anchor deploy --provider.cluster mainnet
-   ```
-
-   This will:
-   - Upload your program to Solana mainnet
-   - Cost approximately 2-5 SOL in deployment fees
-   - Return a Program ID (should match the one you got earlier)
-
-2. **Verify deployment**:
-   ```bash
-   solana program show YOUR_PROGRAM_ID
-   ```
-
-   You should see details about your deployed program.
-
-## Update Frontend
-
-After successful deployment:
-
-1. **Update `escrow-client.js`** with your actual program ID (if not done already)
-
-2. **Restart your server**:
-   ```bash
-   npm start
-   ```
-
-## Testing on Mainnet
-
-⚠️ **WARNING: You will be using real SOL on mainnet!**
-
-### Test with Small Amounts First
-
-1. Create a test game with **0.0001 SOL** prize
-2. Join with a test wallet
-3. Complete the game
-4. Verify prize is transferred correctly
-
-### Monitor Transactions
-
-View all transactions for your program:
+### Optional (Recommended)
 ```bash
-solana program show YOUR_PROGRAM_ID --programs
+SOLANA_NETWORK=https://api.mainnet-beta.solana.com
+NODE_ENV=production
+CLIENT_URL=https://yourdomain.com
 ```
 
-View specific game escrow account:
-```bash
-solana account ESCROW_PDA_ADDRESS
+---
+
+## 🧪 Testing Multi-Device Support
+
+### Test 1: Same WiFi Network
+1. Open `https://your-railway-url.railway.app` on laptop
+2. Open same URL on phone (same WiFi)
+3. Create game on laptop
+4. Join game on phone with code
+5. ✅ Should work perfectly
+
+### Test 2: Different Networks
+1. Laptop on WiFi
+2. Phone on mobile data
+3. Same test as above
+4. ✅ Should work (CORS configured)
+
+### Test 3: Multiple Players
+1. Open on 5+ different devices
+2. All join same game code
+3. Host starts game
+4. ✅ All should see questions simultaneously
+
+---
+
+## 🐛 Troubleshooting
+
+### "Connection Failed" Error
+- **Issue**: CORS or WebSocket not working
+- **Fix**: Check Railway logs, ensure `CLIENT_URL` is set correctly
+- **Quick Fix**: Remove `CLIENT_URL` variable (allows all origins)
+
+### "Game Not Found" Error
+- **Issue**: Backend not saving games
+- **Fix**: Check Railway deployment status
+- **Quick Fix**: Redeploy on Railway
+
+### Players Can't Join
+- **Issue**: WebSocket connection blocked
+- **Fix**: Railway supports WebSocket by default - check browser console
+- **Quick Fix**: Try on different browser
+
+### Slow Response Times
+- **Issue**: Server cold start
+- **Fix**: Railway's free tier sleeps after inactivity
+- **Solution**: Upgrade to Railway Pro ($5/mo) for always-on
+
+---
+
+## 📊 Current Architecture
+
+```
+┌─────────────────────────────────────────┐
+│          CLIENTS (Browsers)              │
+│  Laptop, Phone, Tablet, Desktop, etc.   │
+└──────────────┬──────────────────────────┘
+               │ HTTPS + WebSocket
+               ▼
+┌─────────────────────────────────────────┐
+│         RAILWAY DEPLOYMENT              │
+│                                          │
+│  ┌────────────────────────────────┐    │
+│  │     Node.js Server             │    │
+│  │  - Express.js                  │    │
+│  │  - Socket.io (WebSocket)       │    │
+│  │  - CORS Enabled                │    │
+│  │  - Port: Auto (Railway)        │    │
+│  └────────────────────────────────┘    │
+│                                          │
+│  ┌────────────────────────────────┐    │
+│  │     In-Memory Storage          │    │
+│  │  - Active Games (Map)          │    │
+│  │  - Quizzes (JSON file)         │    │
+│  │  - Player Answers              │    │
+│  │  - Leaderboards                │    │
+│  └────────────────────────────────┘    │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│       Solana Mainnet (Blockchain)       │
+│  - Prize pool transactions              │
+│  - Phantom wallet integration           │
+└─────────────────────────────────────────┘
 ```
 
-## Alternative: Deploy to Devnet First
+---
 
-For testing without real SOL:
+## 🎯 Production Checklist
 
-1. **Switch to devnet**:
-   ```bash
-   solana config set --url https://api.devnet.solana.com
-   ```
+✅ Server deployed to Railway
+✅ CORS configured
+✅ Socket.io production settings
+✅ Environment variables ready
+✅ Automatic scaling enabled
+✅ Health checks configured
+✅ Error logging active
 
-2. **Get devnet SOL** (free):
-   ```bash
-   solana airdrop 2
-   ```
+### Next Steps:
+1. ⬜ Add custom domain to Railway
+2. ⬜ Configure DNS records
+3. ⬜ Test with 10+ concurrent players
+4. ⬜ Monitor Railway logs
+5. ⬜ Consider upgrading Railway plan for always-on
 
-3. **Deploy to devnet**:
-   ```bash
-   anchor deploy --provider.cluster devnet
-   ```
+---
 
-4. **Update `server.js`** to use devnet:
-   ```javascript
-   const SOLANA_NETWORK = 'https://api.devnet.solana.com';
-   ```
+## 💡 Tips
 
-## Security Considerations
+- **Free Tier**: Server sleeps after 5 min inactivity, wakes in ~30s
+- **Pro Tier** ($5/mo): Always running, faster, no sleep
+- **Custom Domain**: Free SSL certificate included
+- **WebSocket**: Fully supported on Railway
+- **Logs**: Check Railway dashboard for errors
 
-### Program Authority
+---
 
-The deployed program is **immutable** by default, meaning:
-- No one can upgrade it after deployment
-- All funds in escrow are completely secure
-- Only the host wallet can trigger payouts (via signed transactions)
+## 🆘 Need Help?
 
-### Upgradeable vs Immutable
+1. Check Railway logs in dashboard
+2. Verify all environment variables
+3. Test with different browsers
+4. Check browser console for errors
+5. Ensure Phantom wallet is installed
 
-Current implementation is **immutable** for maximum security.
+---
 
-If you want an **upgradeable** program (to fix bugs):
-```bash
-solana program deploy target/deploy/trencher_escrow.so --program-id target/deploy/trencher_escrow-keypair.json --upgradeable
-```
+**Your app is PRODUCTION READY! 🚀**
 
-⚠️ **Security Trade-off**: Upgradeable programs are less secure as the upgrade authority can modify the program.
-
-## Costs
-
-### Deployment Costs
-- **Program deployment**: 2-5 SOL (one-time)
-- **Program rent**: Included in deployment cost
-
-### Per-Game Costs
-- **Creating escrow account**: ~0.001 SOL (rent-exempt)
-- **Transaction fees**: ~0.00001 SOL per transaction
-
-### Rent Exemption
-Escrow accounts are rent-exempt, meaning once created, they don't require ongoing payments.
-
-## Troubleshooting
-
-### Insufficient Funds
-```
-Error: Insufficient funds
-```
-**Solution**: Add more SOL to your deployer wallet
-
-### Program ID Mismatch
-```
-Error: Program ID mismatch
-```
-**Solution**: Make sure you updated the program ID in all files after running `anchor build`
-
-### Transaction Failed
-```
-Error: Transaction simulation failed
-```
-**Solution**: Check Solana Explorer for detailed error: https://explorer.solana.com/
-
-### Program Already Deployed
-If you want to redeploy:
-```bash
-solana program close YOUR_PROGRAM_ID
-anchor deploy --provider.cluster mainnet
-```
-
-## Mainnet RPC Providers
-
-Default RPC can be rate-limited. For production, use a dedicated RPC provider:
-
-### Recommended Providers:
-1. **Helius**: https://helius.xyz (Free tier available)
-2. **QuickNode**: https://quicknode.com (Best performance)
-3. **Alchemy**: https://alchemy.com (Enterprise-grade)
-4. **Triton**: https://triton.one (High throughput)
-
-Update in `server.js` and HTML files:
-```javascript
-const SOLANA_NETWORK = 'https://your-custom-rpc-url.com';
-```
-
-## Monitoring & Analytics
-
-### View Program Transactions
-```bash
-solana transaction-history YOUR_PROGRAM_ID
-```
-
-### Solana Explorer
-View your program on Solana Explorer:
-- Mainnet: https://explorer.solana.com/address/YOUR_PROGRAM_ID
-- Devnet: https://explorer.solana.com/address/YOUR_PROGRAM_ID?cluster=devnet
-
-### Track Escrow Accounts
-Each game creates an escrow account at a Program Derived Address (PDA).
-Formula: `[b"game_escrow", game_code.as_bytes()]`
-
-## Support
-
-For issues deploying the program:
-- Anchor Discord: https://discord.gg/anchor
-- Solana Stack Exchange: https://solana.stackexchange.com
-- Solana Discord: https://discord.gg/solana
-
-## Next Steps
-
-After successful deployment:
-1. Update environment variables with program ID
-2. Test with small amounts
-3. Monitor for any issues
-4. Scale to production with dedicated RPC
-
-## Program Features
-
-✅ **Secure Escrow**: Funds locked in PDA until game completion
-✅ **Host Control**: Only host can trigger payout or cancel
-✅ **Automatic Distribution**: Winner receives full prize
-✅ **Refund Support**: Host can cancel and get refund before game starts
-✅ **Immutable**: Program cannot be changed after deployment
-
-## License
-
-This program is provided as-is. Test thoroughly before using with large amounts!
+Just add your custom domain and you're live!
