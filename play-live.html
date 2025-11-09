@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <title>Live Game - Trencher IQ</title>
     <style>
         * {
@@ -459,7 +460,9 @@
             clearInterval(timerInterval);
 
             const timeToAnswer = Date.now() - answerStartTime;
-            const speedBonus = Math.max(0, 1000 - timeToAnswer); // Max 1000 bonus points
+            const questionTime = 15000; // 15 seconds in milliseconds
+            // Speed bonus: answer immediately = 1000 bonus, answer at 15s = 0 bonus
+            const speedBonus = Math.max(0, Math.floor(1000 * (questionTime - timeToAnswer) / questionTime));
 
             // Disable all buttons
             document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
