@@ -195,7 +195,7 @@ app.get('/api/games', (req, res) => {
         const games = Array.from(activeGames.values()).map(game => ({
             code: game.code,
             quizTitle: game.quiz.title,
-            host: game.hostWallet || 'Anonymous',
+            host: game.hostName || game.hostWallet || 'Anonymous',
             prizePool: game.prizePool || 0,
             isFreeGame: game.isFreeGame || false,
             status: game.status,
@@ -213,10 +213,14 @@ app.get('/api/games', (req, res) => {
 // Create new game
 app.post('/api/games/create', (req, res) => {
     try {
-        const { quizId, prizePool, hostWallet, isFreeGame } = req.body;
+        const { quizId, prizePool, hostWallet, hostName, isFreeGame } = req.body;
 
         if (!quizId) {
             return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        if (!hostName || hostName.trim() === '') {
+            return res.status(400).json({ error: 'Host name is required' });
         }
 
         // Validate prize games
@@ -242,6 +246,7 @@ app.post('/api/games/create', (req, res) => {
             code: gameCode,
             quiz: quiz,
             hostWallet: hostWallet || null,
+            hostName: hostName.trim(),
             prizePool: prizePool || 0,
             isFreeGame: isFreeGame || false,
             status: 'waiting', // waiting, playing, finished
@@ -258,7 +263,7 @@ app.post('/api/games/create', (req, res) => {
         io.emit('gameCreated', {
             code: gameCode,
             quizTitle: quiz.title,
-            host: hostWallet || 'Anonymous',
+            host: hostName.trim(),
             prizePool: prizePool || 0,
             isFreeGame: isFreeGame || false,
             status: 'waiting',
@@ -435,7 +440,7 @@ io.on('connection', (socket) => {
             code: gameCode,
             status: 'starting',
             quizTitle: game.quiz.title,
-            host: game.hostWallet,
+            host: game.hostName || game.hostWallet || 'Anonymous',
             prizePool: game.prizePool,
             players: game.players.length,
             questionCount: game.quiz.questions.length
@@ -450,7 +455,7 @@ io.on('connection', (socket) => {
                 code: gameCode,
                 status: 'playing',
                 quizTitle: game.quiz.title,
-                host: game.hostWallet,
+                host: game.hostName || game.hostWallet || 'Anonymous',
                 prizePool: game.prizePool,
                 players: game.players.length,
                 questionCount: game.quiz.questions.length
@@ -602,11 +607,11 @@ function startQuestion(gameCode, questionIndex) {
         clearTimeout(questionTimers.get(gameCode));
     }
 
-    // Set 7-second auto-end timer
+    // Set 15-second auto-end timer
     const timer = setTimeout(() => {
-        console.log(`[QUESTION] 7s timer expired for game ${gameCode}, question ${questionIndex}`);
+        console.log(`[QUESTION] 15s timer expired for game ${gameCode}, question ${questionIndex}`);
         endQuestion(gameCode, questionIndex);
-    }, 7000);
+    }, 15000);
 
     questionTimers.set(gameCode, timer);
 }
@@ -694,7 +699,7 @@ function finishGame(gameCode) {
         code: gameCode,
         status: 'finished',
         quizTitle: game.quiz.title,
-        host: game.hostWallet,
+        host: game.hostName || game.hostWallet || 'Anonymous',
         prizePool: game.prizePool,
         players: game.players.length,
         questionCount: game.quiz.questions.length,
