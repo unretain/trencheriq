@@ -69,6 +69,13 @@
             text-shadow: 0 0 15px #0f0;
         }
 
+        .sol-logo {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
         .main-content {
             background: #0a0a0a;
             border: 3px solid #0f0;
@@ -284,7 +291,7 @@
             <div class="game-info">Share this code with players to join</div>
             <div class="prize-display">
                 <div class="prize-label">PRIZE POOL</div>
-                <div class="prize-amount" id="prizeAmount">◎ 0</div>
+                <div class="prize-amount" id="prizeAmount"><img src="solana-logo.png" class="sol-logo" alt="SOL"> 0</div>
             </div>
         </div>
 
@@ -380,7 +387,7 @@
         });
 
         function updateGameDisplay(data) {
-            document.getElementById('prizeAmount').textContent = `◎ ${data.prizePool}`;
+            document.getElementById('prizeAmount').innerHTML = `<img src="solana-logo.png" class="sol-logo" alt="SOL"> ${data.prizePool}`;
             updatePlayers(data.players);
         }
 
