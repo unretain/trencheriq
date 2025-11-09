@@ -337,6 +337,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const gameCode = urlParams.get('code');
+        const playerName = urlParams.get('name') || localStorage.getItem('playerName') || 'Anonymous';
         const socket = io();
 
         let gameData = null;
@@ -358,8 +359,8 @@
                 }
             }
 
-            // Join the game socket room
-            socket.emit('joinGame', { gameCode, walletAddress });
+            // Join the game socket room with player name
+            socket.emit('joinGame', { gameCode, walletAddress, playerName });
 
             document.getElementById('gameCodeDisplay').textContent = gameCode;
         }
@@ -397,7 +398,7 @@
         function showWaitingScreen(players) {
             const playersList = document.getElementById('playersList');
             playersList.innerHTML = players.map(p => `
-                <div class="player-item">${p.substring(0, 8)}...${p.substring(p.length - 8)}</div>
+                <div class="player-item">${p.name || p.address?.substring(0, 16) || 'Anonymous'}</div>
             `).join('');
         }
 
@@ -499,7 +500,7 @@
             leaderboardList.innerHTML = leaderboard.map((player, index) => `
                 <div class="leaderboard-item ${index === 0 ? 'first' : ''}">
                     <span class="leaderboard-rank">${index + 1}</span>
-                    <span class="leaderboard-name">${player.address.substring(0, 16)}...</span>
+                    <span class="leaderboard-name">${player.name || player.address?.substring(0, 16) || 'Anonymous'}</span>
                     <span class="leaderboard-score">${player.score} pts</span>
                     ${index === 0 ? '<span class="winner-badge">WINNER</span>' : ''}
                 </div>

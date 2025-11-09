@@ -300,7 +300,7 @@ app.post('/api/games/:code/escrow', (req, res) => {
 app.post('/api/games/:code/join', (req, res) => {
     try {
         const { code } = req.params;
-        const { walletAddress } = req.body;
+        const { walletAddress, playerName } = req.body;
 
         const game = activeGames.get(code);
 
@@ -313,11 +313,19 @@ app.post('/api/games/:code/join', (req, res) => {
             return res.status(400).json({ error: 'Game has already started' });
         }
 
-        if (game.players.includes(walletAddress)) {
+        // Don't allow host to join as a player
+        if (walletAddress === game.hostWallet) {
+            return res.status(400).json({ error: 'Host cannot join as a player' });
+        }
+
+        if (game.players.find(p => p.address === walletAddress)) {
             return res.json({ message: 'Already joined', game });
         }
 
-        game.players.push(walletAddress);
+        game.players.push({
+            address: walletAddress,
+            name: playerName || `Player ${game.players.length + 1}`
+        });
         game.answers[walletAddress] = [];
 
         res.json({ message: 'Joined game successfully', game });
@@ -331,7 +339,7 @@ io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
 
     // Player joins game
-    socket.on('joinGame', ({ gameCode, walletAddress }) => {
+    socket.on('joinGame', ({ gameCode, walletAddress, playerName }) => {
         const game = activeGames.get(gameCode);
         if (!game) return;
 
@@ -343,11 +351,27 @@ io.on('connection', (socket) => {
             playerIdentifier = `player_${socket.id}`;
         }
 
+        // DON'T allow host to join as a player
+        if (playerIdentifier === game.hostWallet) {
+            console.log(`[JOIN GAME] Blocked host from joining as player in game ${gameCode}`);
+            socket.emit('gameData', {
+                quiz: game.quiz,
+                prizePool: game.prizePool,
+                players: game.players,
+                status: game.status
+            });
+            return;
+        }
+
         // Allow joining during 'waiting' OR 'starting' phase
-        if (playerIdentifier && !game.players.includes(playerIdentifier) && (game.status === 'waiting' || game.status === 'starting')) {
-            game.players.push(playerIdentifier);
+        if (playerIdentifier && !game.players.find(p => p.address === playerIdentifier) && (game.status === 'waiting' || game.status === 'starting')) {
+            const player = {
+                address: playerIdentifier,
+                name: playerName || `Player ${game.players.length + 1}`
+            };
+            game.players.push(player);
             game.answers[playerIdentifier] = [];
-            console.log(`[JOIN GAME] Player ${playerIdentifier} joined game ${gameCode} (status: ${game.status})`);
+            console.log(`[JOIN GAME] Player ${player.name} (${playerIdentifier}) joined game ${gameCode} (status: ${game.status})`);
         }
 
         // Send game data to player
@@ -525,12 +549,13 @@ io.on('connection', (socket) => {
 
 // Helper function to update leaderboard
 function updateLeaderboard(game) {
-    const leaderboard = game.players.map(playerAddress => {
-        const playerAnswers = game.answers[playerAddress] || [];
+    const leaderboard = game.players.map(player => {
+        const playerAnswers = game.answers[player.address] || [];
         const totalScore = playerAnswers.reduce((sum, answer) => sum + (answer?.score || 0), 0);
 
         return {
-            address: playerAddress,
+            address: player.address,
+            name: player.name,
             score: totalScore
         };
     });
@@ -610,7 +635,7 @@ function checkAllPlayersAnswered(gameCode, questionIndex) {
     if (!game) return false;
 
     const answersForQuestion = game.players.filter(player => {
-        return game.answers[player] && game.answers[player][questionIndex] !== undefined;
+        return game.answers[player.address] && game.answers[player.address][questionIndex] !== undefined;
     });
 
     console.log(`[ANSWERS] ${answersForQuestion.length}/${game.players.length} players answered question ${questionIndex + 1}`);

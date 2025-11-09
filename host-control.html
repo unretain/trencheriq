@@ -401,7 +401,7 @@
                 playersGrid.innerHTML = '<div class="empty-players">No players have joined yet</div>';
             } else {
                 playersGrid.innerHTML = players.map((player, index) => {
-                    const displayName = player ? `${player.substring(0, 12)}...` : `Player ${index + 1}`;
+                    const displayName = player.name || player.address?.substring(0, 12) || `Player ${index + 1}`;
                     return `
                         <div class="player-card">
                             <div class="player-avatar">${index + 1}</div>
@@ -447,7 +447,7 @@
             leaderboardDiv.innerHTML = leaderboard.map((player, index) => `
                 <div class="leaderboard-item ${index === 0 ? 'first' : ''}">
                     <span class="leaderboard-rank">${index + 1}</span>
-                    <span class="leaderboard-address">${player.address.substring(0, 20)}...</span>
+                    <span class="leaderboard-address">${player.name || player.address?.substring(0, 20) || 'Anonymous'}</span>
                     <span class="leaderboard-score">${player.score} pts</span>
                 </div>
             `).join('');
@@ -489,8 +489,9 @@
 
             const winner = gameData.leaderboard[0];
             const winnerAddress = winner.address;
+            const winnerName = winner.name || 'Anonymous';
 
-            if (!confirm(`This will send ${gameData.prizePool} SOL to the winner:\n${winnerAddress.substring(0, 16)}...\n\nContinue?`)) {
+            if (!confirm(`This will send ${gameData.prizePool} SOL to the winner:\n${winnerName}\n(${winnerAddress.substring(0, 16)}...)\n\nContinue?`)) {
                 return;
             }
 
