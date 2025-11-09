@@ -468,19 +468,26 @@ io.on('connection', (socket) => {
         if (!game) return;
 
         const question = game.quiz.questions[questionIndex];
-        const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
+
+        // FIX: correctAnswer is stored as 1-based (1,2,3,4) from checkbox values
+        // Convert to 0-based index for comparison
+        let correctAnswerIndex;
+        if (typeof question.correctAnswer === 'number') {
+            // New format: correctAnswer is 1-based checkbox value
+            correctAnswerIndex = question.correctAnswer - 1;
+        } else {
+            // Old format: correctAnswer is the answer text (for backward compatibility)
+            correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
+        }
+
         const isCorrect = answerIndex === correctAnswerIndex;
 
         // Debug logging
-        console.log(`[ANSWER DEBUG] Question: "${question.question}"`);
-        console.log(`[ANSWER DEBUG] Answers array: ${JSON.stringify(question.answers)}`);
-        console.log(`[ANSWER DEBUG] Correct answer text: "${question.correctAnswer}"`);
-        console.log(`[ANSWER DEBUG] Correct answer index: ${correctAnswerIndex}`);
-        console.log(`[ANSWER DEBUG] Player selected index: ${answerIndex}`);
-        console.log(`[ANSWER DEBUG] Player selected text: "${question.answers[answerIndex]}"`);
-        console.log(`[ANSWER DEBUG] Is correct? ${isCorrect}`);
+        console.log(`[ANSWER] Question ${questionIndex + 1}: "${question.question}"`);
+        console.log(`[ANSWER] Correct index: ${correctAnswerIndex}, Player selected: ${answerIndex}`);
+        console.log(`[ANSWER] Result: ${isCorrect ? 'CORRECT' : 'WRONG'}`);
 
-        // Calculate score (1000 points for correct + speed bonus)
+        // Calculate score (1000 points for correct + speed bonus up to 1000)
         const score = isCorrect ? 1000 + Math.floor(speedBonus) : 0;
 
         // Store answer
@@ -494,11 +501,15 @@ io.on('connection', (socket) => {
             timestamp: Date.now()
         };
 
-        console.log(`[ANSWER] Player ${walletAddress} answered question ${questionIndex + 1} - ${isCorrect ? 'CORRECT' : 'WRONG'} (Score: ${score})`);
+        console.log(`[ANSWER] Player ${walletAddress.substring(0, 12)}... answered Q${questionIndex + 1} - ${isCorrect ? 'CORRECT ✓' : 'WRONG ✗'} (Score: ${score})`);
 
         // Check if all players have answered
-        if (checkAllPlayersAnswered(gameCode, questionIndex)) {
+        const allAnswered = checkAllPlayersAnswered(gameCode, questionIndex);
+        console.log(`[PROGRESS] ${game.players.length} total players, checking if all answered: ${allAnswered}`);
+
+        if (allAnswered) {
             // End question immediately when all players answered
+            console.log(`[PROGRESS] All players answered! Ending question early...`);
             endQuestion(gameCode, questionIndex);
         }
     });
@@ -627,12 +638,19 @@ function endQuestion(gameCode, questionIndex) {
 
     // Wait 3 seconds to show answer, then move to next question
     setTimeout(() => {
-        if (questionIndex + 1 < game.quiz.questions.length) {
+        const totalQuestions = game.quiz.questions.length;
+        const isLastQuestion = questionIndex + 1 >= totalQuestions;
+
+        console.log(`[PROGRESS] 3-second answer display complete for Q${questionIndex + 1}`);
+        console.log(`[PROGRESS] Questions: ${questionIndex + 1}/${totalQuestions}, isLastQuestion: ${isLastQuestion}`);
+
+        if (!isLastQuestion) {
             // Start next question
+            console.log(`[PROGRESS] Starting next question ${questionIndex + 2}...`);
             startQuestion(gameCode, questionIndex + 1);
         } else {
             // Game finished
-            console.log(`[GAME] Game ${gameCode} finished`);
+            console.log(`[GAME] ✅ Game ${gameCode} FINISHED - all ${totalQuestions} questions complete`);
             finishGame(gameCode);
         }
     }, 3000);
