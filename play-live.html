@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Game - Trencher IQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-code-display {
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .prize-display {
+            font-size: 1.2rem;
+        }
+
+        .prize-amount {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .waiting-screen {
+            text-align: center;
+            color: white;
+            padding: 3rem;
+        }
+
+        .waiting-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .waiting-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .players-list {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+
+        .players-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .player-item {
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-screen {
+            display: none;
+        }
+
+        .question-screen.active {
+            display: block;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-media {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .answer-btn {
+            padding: 1.5rem;
+            border: 3px solid #e0e0e0;
+            background: white;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .answer-btn.correct {
+            border-color: #4caf50;
+            background: #4caf50;
+            color: white;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+
+        .timer {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaderboard-screen {
+            display: none;
+        }
+
+        .leaderboard-screen.active {
+            display: block;
+        }
+
+        .leaderboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .leaderboard-title {
+            font-size: 2rem;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .leaderboard-item.first {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            font-size: 1.2rem;
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 1rem;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+        }
+
+        .leaderboard-score {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .winner-badge {
+            background: #4caf50;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            padding: 3rem;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <div class="game-code-display">Game: <span id="gameCodeDisplay">------</span></div>
+        <div class="prize-display">Prize: <span class="prize-amount" id="prizeDisplay">◎ 0</span></div>
+    </div>
+
+    <div class="container">
+        <div id="loadingScreen" class="loading">
+            Loading game...
+        </div>
+
+        <div id="waitingScreen" class="waiting-screen">
+            <h1 class="waiting-title">Waiting for game to start...</h1>
+            <p class="waiting-text">The host will start the game when ready</p>
+            <div class="players-list">
+                <div class="players-title">👥 Players in Lobby</div>
+                <div id="playersList"></div>
+            </div>
+        </div>
+
+        <div id="questionScreen" class="question-screen">
+            <div class="timer" id="timer">0</div>
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">Question 1 of 10</div>
+                <img id="questionMedia" class="question-media" style="display: none;">
+                <video id="questionVideo" class="question-media" style="display: none;" controls></video>
+                <div class="question-text" id="questionText"></div>
+                <div class="answers" id="answersContainer"></div>
+            </div>
+        </div>
+
+        <div id="leaderboardScreen" class="leaderboard-screen">
+            <div class="leaderboard-card">
+                <h2 class="leaderboard-title">🏆 Final Leaderboard</h2>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameCode = urlParams.get('code');
+        const socket = io();
+
+        let gameData = null;
+        let currentQuestionIndex = 0;
+        let playerScore = 0;
+        let answerStartTime = 0;
+
+        // Get wallet address from local storage
+        const provider = window.phantom?.solana;
+        let walletAddress = null;
+
+        async function init() {
+            if (provider) {
+                try {
+                    const resp = await provider.connect({ onlyIfTrusted: true });
+                    walletAddress = resp.publicKey.toString();
+                } catch (err) {
+                    console.error('Wallet not connected');
+                }
+            }
+
+            // Join the game socket room
+            socket.emit('joinGame', { gameCode, walletAddress });
+
+            document.getElementById('gameCodeDisplay').textContent = gameCode;
+        }
+
+        // Socket event listeners
+        socket.on('gameData', (data) => {
+            gameData = data;
+            document.getElementById('prizeDisplay').textContent = `◎ ${data.prizePool}`;
+            showWaitingScreen(data.players);
+            document.getElementById('loadingScreen').style.display = 'none';
+        });
+
+        socket.on('playerJoined', (players) => {
+            showWaitingScreen(players);
+        });
+
+        socket.on('gameStarted', () => {
+            document.getElementById('waitingScreen').style.display = 'none';
+            startQuestion(0);
+        });
+
+        socket.on('nextQuestion', (questionIndex) => {
+            currentQuestionIndex = questionIndex;
+            startQuestion(questionIndex);
+        });
+
+        socket.on('questionEnd', (data) => {
+            showAnswerResults(data.correctAnswer);
+        });
+
+        socket.on('gameFinished', (leaderboard) => {
+            showLeaderboard(leaderboard);
+        });
+
+        function showWaitingScreen(players) {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = players.map(p => `
+                <div class="player-item">${p.substring(0, 8)}...${p.substring(p.length - 8)}</div>
+            `).join('');
+        }
+
+        function startQuestion(questionIndex) {
+            const question = gameData.quiz.questions[questionIndex];
+            answerStartTime = Date.now();
+
+            document.getElementById('questionNumber').textContent = `Question ${questionIndex + 1} of ${gameData.quiz.questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            // Handle media
+            const img = document.getElementById('questionMedia');
+            const video = document.getElementById('questionVideo');
+            img.style.display = 'none';
+            video.style.display = 'none';
+
+            if (question.media) {
+                if (question.media.endsWith('.mp4')) {
+                    video.src = question.media;
+                    video.style.display = 'block';
+                } else {
+                    img.src = question.media;
+                    img.style.display = 'block';
+                }
+            }
+
+            // Render answers
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = question.answers.map((answer, index) => `
+                <button class="answer-btn" onclick="selectAnswer(${index})">${answer}</button>
+            `).join('');
+
+            document.getElementById('questionScreen').classList.add('active');
+            document.getElementById('leaderboardScreen').classList.remove('active');
+
+            // Start timer (30 seconds per question)
+            startTimer(30);
+        }
+
+        let timerInterval;
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            document.getElementById('timer').textContent = timeLeft;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Auto-submit no answer
+                    submitAnswer(-1, 0);
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(answerIndex) {
+            clearInterval(timerInterval);
+
+            const timeToAnswer = Date.now() - answerStartTime;
+            const speedBonus = Math.max(0, 1000 - timeToAnswer); // Max 1000 bonus points
+
+            // Disable all buttons
+            document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+            document.querySelectorAll('.answer-btn')[answerIndex].classList.add('selected');
+
+            submitAnswer(answerIndex, speedBonus);
+        }
+
+        function submitAnswer(answerIndex, speedBonus) {
+            socket.emit('submitAnswer', {
+                gameCode,
+                walletAddress,
+                questionIndex: currentQuestionIndex,
+                answerIndex,
+                speedBonus
+            });
+        }
+
+        function showAnswerResults(correctAnswerIndex) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons[correctAnswerIndex].classList.add('correct');
+
+            const selectedBtn = document.querySelector('.answer-btn.selected');
+            if (selectedBtn && !selectedBtn.classList.contains('correct')) {
+                selectedBtn.classList.add('incorrect');
+            }
+
+            // Wait 3 seconds before next question
+            setTimeout(() => {
+                // Host will trigger next question
+            }, 3000);
+        }
+
+        function showLeaderboard(leaderboard) {
+            document.getElementById('questionScreen').classList.remove('active');
+            document.getElementById('leaderboardScreen').classList.add('active');
+
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = leaderboard.map((player, index) => `
+                <div class="leaderboard-item ${index === 0 ? 'first' : ''}">
+                    <span class="leaderboard-rank">${index + 1}</span>
+                    <span class="leaderboard-name">${player.address.substring(0, 16)}...</span>
+                    <span class="leaderboard-score">${player.score} pts</span>
+                    ${index === 0 ? '<span class="winner-badge">🏆 WINNER</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        init();
+    </script>
+</body>
+</html>

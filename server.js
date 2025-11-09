@@ -2,9 +2,18 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const http = require('http');
+const socketIO = require('socket.io');
+const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 const PORT = process.env.PORT || 8080;
+
+// Solana connection (mainnet-beta for production)
+const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'https://api.mainnet-beta.solana.com';
+const solanaConnection = new Connection(SOLANA_NETWORK, 'confirmed');
 
 // Middleware
 app.use(express.json());
@@ -46,6 +55,18 @@ const QUIZZES_FILE = path.join(__dirname, 'quizzes.json');
 // Initialize quizzes file if it doesn't exist
 if (!fs.existsSync(QUIZZES_FILE)) {
     fs.writeFileSync(QUIZZES_FILE, JSON.stringify([]));
+}
+
+// In-memory game storage
+const activeGames = new Map();
+
+// Generate 6-digit game code
+function generateGameCode() {
+    let code;
+    do {
+        code = Math.floor(100000 + Math.random() * 900000).toString();
+    } while (activeGames.has(code));
+    return code;
 }
 
 // Helper functions
@@ -142,7 +163,343 @@ app.post('/api/quizzes/:id/play', (req, res) => {
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Live Game API Routes
+
+// Get all active games
+app.get('/api/games', (req, res) => {
+    try {
+        const games = Array.from(activeGames.values()).map(game => ({
+            code: game.code,
+            quizTitle: game.quiz.title,
+            host: game.hostWallet,
+            prizePool: game.prizePool,
+            status: game.status,
+            players: game.players.length,
+            questionCount: game.quiz.questions.length,
+            leaderboard: game.leaderboard,
+            createdAt: game.createdAt
+        }));
+        res.json(games);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch games' });
+    }
+});
+
+// Create new game
+app.post('/api/games/create', (req, res) => {
+    try {
+        const { quizId, prizePool, hostWallet } = req.body;
+
+        if (!quizId || !prizePool || !hostWallet) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        if (prizePool < 0.0001 || prizePool > 1000) {
+            return res.status(400).json({ error: 'Prize pool must be between 0.0001 and 1000 SOL' });
+        }
+
+        const quizzes = readQuizzes();
+        const quiz = quizzes.find(q => q.id === quizId);
+
+        if (!quiz) {
+            return res.status(404).json({ error: 'Quiz not found' });
+        }
+
+        const gameCode = generateGameCode();
+
+        const newGame = {
+            code: gameCode,
+            quiz: quiz,
+            hostWallet: hostWallet,
+            prizePool: prizePool,
+            status: 'waiting', // waiting, playing, finished
+            players: [],
+            answers: {},
+            leaderboard: [],
+            currentQuestion: 0,
+            createdAt: new Date().toISOString()
+        };
+
+        activeGames.set(gameCode, newGame);
+
+        // Broadcast new game to all clients
+        io.emit('gameCreated', {
+            code: gameCode,
+            quizTitle: quiz.title,
+            host: hostWallet,
+            prizePool: prizePool,
+            status: 'waiting',
+            players: 0,
+            questionCount: quiz.questions.length
+        });
+
+        res.status(201).json({ gameCode, game: newGame });
+    } catch (error) {
+        console.error('Error creating game:', error);
+        res.status(500).json({ error: 'Failed to create game' });
+    }
+});
+
+// Update game with escrow details
+app.post('/api/games/:code/escrow', (req, res) => {
+    try {
+        const { code } = req.params;
+        const { escrowAddress, transactionSignature } = req.body;
+
+        const game = activeGames.get(code);
+
+        if (!game) {
+            return res.status(404).json({ error: 'Game not found' });
+        }
+
+        game.escrowAddress = escrowAddress;
+        game.escrowTransaction = transactionSignature;
+
+        console.log(`Game ${code} escrow set: ${escrowAddress}`);
+
+        res.json({ message: 'Escrow updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update escrow' });
+    }
+});
+
+// Join game
+app.post('/api/games/:code/join', (req, res) => {
+    try {
+        const { code } = req.params;
+        const { walletAddress } = req.body;
+
+        const game = activeGames.get(code);
+
+        if (!game) {
+            return res.status(404).json({ error: 'Game not found' });
+        }
+
+        if (game.status !== 'waiting') {
+            return res.status(400).json({ error: 'Game has already started' });
+        }
+
+        if (game.players.includes(walletAddress)) {
+            return res.json({ message: 'Already joined', game });
+        }
+
+        game.players.push(walletAddress);
+        game.answers[walletAddress] = [];
+
+        res.json({ message: 'Joined game successfully', game });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to join game' });
+    }
+});
+
+// Socket.IO event handlers
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+
+    // Player joins game
+    socket.on('joinGame', ({ gameCode, walletAddress }) => {
+        const game = activeGames.get(gameCode);
+        if (!game) return;
+
+        socket.join(gameCode);
+
+        if (!game.players.includes(walletAddress) && game.status === 'waiting') {
+            game.players.push(walletAddress);
+            game.answers[walletAddress] = [];
+        }
+
+        // Send game data to player
+        socket.emit('gameData', {
+            quiz: game.quiz,
+            prizePool: game.prizePool,
+            players: game.players,
+            status: game.status
+        });
+
+        // Notify all players about new player
+        io.to(gameCode).emit('playerJoined', game.players);
+    });
+
+    // Host joins game
+    socket.on('joinAsHost', ({ gameCode }) => {
+        const game = activeGames.get(gameCode);
+        if (!game) return;
+
+        socket.join(gameCode);
+        socket.emit('gameData', {
+            quiz: game.quiz,
+            prizePool: game.prizePool,
+            players: game.players,
+            status: game.status,
+            leaderboard: game.leaderboard
+        });
+    });
+
+    // Start game
+    socket.on('startGame', ({ gameCode }) => {
+        const game = activeGames.get(gameCode);
+        if (!game || game.status !== 'waiting') return;
+
+        game.status = 'playing';
+        game.currentQuestion = 0;
+
+        io.to(gameCode).emit('gameStarted');
+        io.emit('gameUpdate', {
+            code: gameCode,
+            status: 'playing',
+            quizTitle: game.quiz.title,
+            host: game.hostWallet,
+            prizePool: game.prizePool,
+            players: game.players.length,
+            questionCount: game.quiz.questions.length
+        });
+    });
+
+    // Submit answer
+    socket.on('submitAnswer', ({ gameCode, walletAddress, questionIndex, answerIndex, speedBonus }) => {
+        const game = activeGames.get(gameCode);
+        if (!game) return;
+
+        const question = game.quiz.questions[questionIndex];
+        const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
+        const isCorrect = answerIndex === correctAnswerIndex;
+
+        // Calculate score (1000 points for correct + speed bonus)
+        const score = isCorrect ? 1000 + Math.floor(speedBonus) : 0;
+
+        // Store answer
+        if (!game.answers[walletAddress]) {
+            game.answers[walletAddress] = [];
+        }
+        game.answers[walletAddress][questionIndex] = {
+            answerIndex,
+            isCorrect,
+            score,
+            timestamp: Date.now()
+        };
+
+        // Update leaderboard
+        updateLeaderboard(game);
+
+        // Notify host about answers received
+        const answersForQuestion = Object.values(game.answers).filter(
+            answers => answers[questionIndex] !== undefined
+        );
+        io.to(gameCode).emit('answersReceived', answersForQuestion);
+        io.to(gameCode).emit('leaderboardUpdate', game.leaderboard);
+    });
+
+    // Next question
+    socket.on('nextQuestion', ({ gameCode, questionIndex }) => {
+        const game = activeGames.get(gameCode);
+        if (!game) return;
+
+        const question = game.quiz.questions[questionIndex];
+        const correctAnswerIndex = question.answers.indexOf(question.correctAnswer);
+
+        // Send correct answer to all players
+        io.to(gameCode).emit('questionEnd', { correctAnswer: correctAnswerIndex });
+
+        // Wait 3 seconds then move to next question or end game
+        setTimeout(() => {
+            game.currentQuestion = questionIndex + 1;
+
+            if (questionIndex + 1 < game.quiz.questions.length) {
+                io.to(gameCode).emit('nextQuestion', questionIndex + 1);
+            } else {
+                // Game finished
+                finishGame(gameCode);
+            }
+        }, 3000);
+    });
+
+    // Finish game
+    socket.on('finishGame', ({ gameCode }) => {
+        finishGame(gameCode);
+    });
+
+    // Pay winner
+    socket.on('payWinner', async ({ gameCode }) => {
+        const game = activeGames.get(gameCode);
+        if (!game || game.leaderboard.length === 0) return;
+
+        const winner = game.leaderboard[0];
+
+        try {
+            // In a real implementation, you would:
+            // 1. Have the host sign a transaction to send SOL to the winner
+            // 2. Use a smart contract escrow to hold funds
+            // 3. Automatically transfer on game completion
+
+            // For now, we'll just log it
+            console.log(`Prize of ${game.prizePool} SOL should be sent to ${winner.address}`);
+
+            // In production, implement Solana transaction here:
+            /*
+            const transaction = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(game.hostWallet),
+                    toPubkey: new PublicKey(winner.address),
+                    lamports: game.prizePool * LAMPORTS_PER_SOL,
+                })
+            );
+
+            // Transaction would need to be signed by host wallet
+            // This requires client-side signing via Phantom
+            */
+
+            socket.emit('prizePaid', { winner: winner.address, amount: game.prizePool });
+        } catch (error) {
+            console.error('Error paying winner:', error);
+            socket.emit('error', { message: 'Failed to pay winner' });
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
+// Helper function to update leaderboard
+function updateLeaderboard(game) {
+    const leaderboard = game.players.map(playerAddress => {
+        const playerAnswers = game.answers[playerAddress] || [];
+        const totalScore = playerAnswers.reduce((sum, answer) => sum + (answer?.score || 0), 0);
+
+        return {
+            address: playerAddress,
+            score: totalScore
+        };
+    });
+
+    // Sort by score descending
+    leaderboard.sort((a, b) => b.score - a.score);
+    game.leaderboard = leaderboard;
+}
+
+// Helper function to finish game
+function finishGame(gameCode) {
+    const game = activeGames.get(gameCode);
+    if (!game) return;
+
+    game.status = 'finished';
+    updateLeaderboard(game);
+
+    io.to(gameCode).emit('gameFinished', game.leaderboard);
+    io.emit('gameUpdate', {
+        code: gameCode,
+        status: 'finished',
+        quizTitle: game.quiz.title,
+        host: game.hostWallet,
+        prizePool: game.prizePool,
+        players: game.players.length,
+        questionCount: game.quiz.questions.length,
+        leaderboard: game.leaderboard
+    });
+}
+
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Solana network: ${SOLANA_NETWORK}`);
 });

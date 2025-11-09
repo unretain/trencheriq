@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Control - Trencher IQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .host-header {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-code {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .game-info {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .prize-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .prize-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .prize-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .player-card {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .player-address {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .start-game-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        .start-game-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .start-game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .next-question-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        .next-question-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .next-question-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-status {
+            padding: 1rem;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-status.playing {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+
+        .game-status.finished {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .current-question {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .leaderboard {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-item.first {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 1rem;
+        }
+
+        .leaderboard-address {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .end-game-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 1rem;
+        }
+
+        .end-game-btn:hover {
+            transform: translateY(-2px);
+            background: #d32f2f;
+        }
+
+        .empty-players {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="host-header">
+            <div class="game-code" id="gameCode">------</div>
+            <div class="game-info">Share this code with players to join</div>
+            <div class="prize-display">
+                <div class="prize-label">PRIZE POOL</div>
+                <div class="prize-amount" id="prizeAmount">◎ 0</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="game-status" id="gameStatus">
+                ⏳ Waiting for players to join...
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    👥 Players (<span id="playerCount">0</span>)
+                </div>
+                <div class="players-grid" id="playersGrid">
+                    <div class="empty-players">No players have joined yet</div>
+                </div>
+            </div>
+
+            <div id="waitingControls">
+                <button class="start-game-btn" id="startGameBtn" disabled>
+                    START GAME
+                </button>
+            </div>
+
+            <div id="playingControls" style="display: none;">
+                <div class="current-question" id="currentQuestion"></div>
+                <button class="next-question-btn" id="nextQuestionBtn">
+                    NEXT QUESTION
+                </button>
+            </div>
+
+            <div class="section" id="leaderboardSection" style="display: none;">
+                <div class="section-title">
+                    🏆 Leaderboard
+                </div>
+                <div class="leaderboard" id="leaderboard"></div>
+            </div>
+
+            <button class="end-game-btn" id="endGameBtn" style="display: none;">
+                END GAME & PAY WINNER
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module">
+        import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.0/+esm';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameCode = urlParams.get('code');
+        const socket = io();
+
+        let gameData = null;
+        let currentQuestionIndex = 0;
+        let solanaConnection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+
+        document.getElementById('gameCode').textContent = gameCode;
+
+        // Join as host
+        socket.emit('joinAsHost', { gameCode });
+
+        // Socket event listeners
+        socket.on('gameData', (data) => {
+            gameData = data;
+            updateGameDisplay(data);
+        });
+
+        socket.on('playerJoined', (players) => {
+            updatePlayers(players);
+        });
+
+        socket.on('gameStarted', () => {
+            document.getElementById('waitingControls').style.display = 'none';
+            document.getElementById('playingControls').style.display = 'block';
+            document.getElementById('leaderboardSection').style.display = 'block';
+            updateGameStatus('playing');
+            showQuestion(0);
+        });
+
+        socket.on('answersReceived', (answers) => {
+            // Update next question button when all players answered
+            if (gameData && answers.length === gameData.players.length) {
+                document.getElementById('nextQuestionBtn').disabled = false;
+            }
+        });
+
+        socket.on('leaderboardUpdate', (leaderboard) => {
+            updateLeaderboard(leaderboard);
+        });
+
+        socket.on('gameFinished', (data) => {
+            updateGameStatus('finished');
+            document.getElementById('playingControls').style.display = 'none';
+            document.getElementById('endGameBtn').style.display = 'block';
+            updateLeaderboard(data.leaderboard);
+        });
+
+        function updateGameDisplay(data) {
+            document.getElementById('prizeAmount').textContent = `◎ ${data.prizePool}`;
+            updatePlayers(data.players);
+        }
+
+        function updatePlayers(players) {
+            const playersGrid = document.getElementById('playersGrid');
+            const playerCount = document.getElementById('playerCount');
+
+            playerCount.textContent = players.length;
+
+            if (players.length === 0) {
+                playersGrid.innerHTML = '<div class="empty-players">No players have joined yet</div>';
+                document.getElementById('startGameBtn').disabled = true;
+            } else {
+                playersGrid.innerHTML = players.map((player, index) => `
+                    <div class="player-card">
+                        <div class="player-avatar">${index + 1}</div>
+                        <div class="player-address">${player.substring(0, 12)}...</div>
+                    </div>
+                `).join('');
+                document.getElementById('startGameBtn').disabled = false;
+            }
+        }
+
+        function updateGameStatus(status) {
+            const statusDiv = document.getElementById('gameStatus');
+            if (status === 'waiting') {
+                statusDiv.className = 'game-status';
+                statusDiv.textContent = '⏳ Waiting for players to join...';
+            } else if (status === 'playing') {
+                statusDiv.className = 'game-status playing';
+                statusDiv.textContent = '🎮 Game in progress';
+            } else if (status === 'finished') {
+                statusDiv.className = 'game-status finished';
+                statusDiv.textContent = '🏆 Game finished!';
+            }
+        }
+
+        function showQuestion(questionIndex) {
+            currentQuestionIndex = questionIndex;
+            const question = gameData.quiz.questions[questionIndex];
+            document.getElementById('currentQuestion').textContent =
+                `Question ${questionIndex + 1} of ${gameData.quiz.questions.length}: ${question.question}`;
+            document.getElementById('nextQuestionBtn').disabled = true;
+
+            // Auto-enable after 30 seconds (question time limit)
+            setTimeout(() => {
+                document.getElementById('nextQuestionBtn').disabled = false;
+            }, 30000);
+        }
+
+        function updateLeaderboard(leaderboard) {
+            const leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = leaderboard.map((player, index) => `
+                <div class="leaderboard-item ${index === 0 ? 'first' : ''}">
+                    <span class="leaderboard-rank">${index + 1}</span>
+                    <span class="leaderboard-address">${player.address.substring(0, 20)}...</span>
+                    <span class="leaderboard-score">${player.score} pts</span>
+                </div>
+            `).join('');
+        }
+
+        // Start game button
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            socket.emit('startGame', { gameCode });
+            document.getElementById('startGameBtn').disabled = true;
+        });
+
+        // Next question button
+        document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+            socket.emit('nextQuestion', { gameCode, questionIndex: currentQuestionIndex });
+
+            if (currentQuestionIndex + 1 < gameData.quiz.questions.length) {
+                showQuestion(currentQuestionIndex + 1);
+            } else {
+                // Game finished
+                socket.emit('finishGame', { gameCode });
+            }
+        });
+
+        // End game and pay winner
+        document.getElementById('endGameBtn').addEventListener('click', async () => {
+            if (!gameData || !gameData.leaderboard || gameData.leaderboard.length === 0) {
+                alert('No winner to pay!');
+                return;
+            }
+
+            const winner = gameData.leaderboard[0];
+            const winnerAddress = winner.address;
+
+            if (!confirm(`This will send ${gameData.prizePool} SOL to the winner:\n${winnerAddress.substring(0, 16)}...\n\nContinue?`)) {
+                return;
+            }
+
+            try {
+                const provider = window.phantom?.solana;
+                if (!provider) {
+                    alert('Phantom wallet not found. Please install Phantom wallet.');
+                    return;
+                }
+
+                // Get escrow address
+                const escrowSeed = `escrow_${gameCode}`;
+                const [escrowPDA] = await PublicKey.findProgramAddress(
+                    [Buffer.from(escrowSeed)],
+                    new PublicKey('11111111111111111111111111111111')
+                );
+
+                // Build transaction to transfer from escrow to winner
+                const lamports = Math.floor(gameData.prizePool * LAMPORTS_PER_SOL);
+                const { blockhash } = await solanaConnection.getLatestBlockhash();
+
+                const transaction = new Transaction({
+                    recentBlockhash: blockhash,
+                    feePayer: provider.publicKey
+                });
+
+                // Transfer from escrow to winner
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: escrowPDA,
+                        toPubkey: new PublicKey(winnerAddress),
+                        lamports: lamports
+                    })
+                );
+
+                // Sign and send transaction
+                const signed = await provider.signAndSendTransaction(transaction);
+
+                alert(`Prize sent to winner!\nTransaction: ${signed.signature}\n\nRedirecting...`);
+
+                // Notify server
+                socket.emit('payWinner', {
+                    gameCode,
+                    transactionSignature: signed.signature,
+                    winnerAddress
+                });
+
+                setTimeout(() => {
+                    window.location.href = '/games.html';
+                }, 3000);
+            } catch (err) {
+                console.error('Error paying winner:', err);
+                alert(`Failed to send prize: ${err.message}`);
+            }
+        });
+    </script>
+</body>
+</html>

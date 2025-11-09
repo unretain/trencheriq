@@ -3,3 +3,8 @@ uploads/
 quizzes.json
 .env
 *.log
+target/
+.anchor/
+test-ledger/
+*.so
+*-keypair.json

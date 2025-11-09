@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Game - Trencher IQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .nav-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-logo {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .host-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .host-title {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .host-subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .wallet-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .wallet-status {
+            margin-bottom: 1rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #667eea;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+
+        .connect-wallet-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .connect-wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .connect-wallet-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-section {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .prize-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        .prize-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .prize-hint {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .quiz-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .quiz-preview.active {
+            display: block;
+        }
+
+        .quiz-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .create-game-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem 3rem;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .create-game-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .create-game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #f5576c;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #ffe0e0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .success-message {
+            color: #4caf50;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e0ffe0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-logo">🧠</span>
+            <span class="nav-title">TRENCHER IQ</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Official Quiz</a>
+            <a href="browse.html" class="nav-link">Browse Quizzes</a>
+            <a href="create.html" class="nav-link">Create Quiz</a>
+            <div class="nav-divider"></div>
+            <a href="games.html" class="nav-link">Live Games</a>
+            <a href="host.html" class="nav-link active">Host Game</a>
+            <a href="join.html" class="nav-link">Join Game</a>
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-link">Pump.fun</a>
+            <a href="#" class="nav-link">X Community</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="host-card">
+            <h1 class="host-title">Host Live Game</h1>
+            <p class="host-subtitle">Create a live multiplayer game with SOL prizes</p>
+
+            <div class="wallet-section">
+                <div class="wallet-status" id="walletStatus">Wallet not connected</div>
+                <button class="connect-wallet-btn" id="connectWalletBtn">Connect Phantom Wallet</button>
+                <div class="wallet-address" id="walletAddress"></div>
+            </div>
+
+            <div class="form-section" id="formSection" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Select Quiz</label>
+                    <select class="form-select" id="quizSelect">
+                        <option value="">Choose a quiz...</option>
+                    </select>
+                    <div class="quiz-preview" id="quizPreview">
+                        <div class="quiz-info" id="quizInfo"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prize Pool (SOL)</label>
+                    <input
+                        type="number"
+                        class="prize-input"
+                        id="prizeInput"
+                        placeholder="0.0001"
+                        step="0.0001"
+                        min="0.0001"
+                        max="1000"
+                    >
+                    <div class="prize-hint">Minimum: 0.0001 SOL | Maximum: 1000 SOL</div>
+                </div>
+
+                <button class="create-game-btn" id="createGameBtn" disabled>CREATE GAME</button>
+            </div>
+
+            <div id="messageBox"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.0/+esm';
+
+        let walletAddress = null;
+        let quizzes = [];
+        let solanaConnection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const walletStatus = document.getElementById('walletStatus');
+        const walletAddressDiv = document.getElementById('walletAddress');
+        const formSection = document.getElementById('formSection');
+        const quizSelect = document.getElementById('quizSelect');
+        const quizPreview = document.getElementById('quizPreview');
+        const quizInfo = document.getElementById('quizInfo');
+        const prizeInput = document.getElementById('prizeInput');
+        const createGameBtn = document.getElementById('createGameBtn');
+        const messageBox = document.getElementById('messageBox');
+
+        // Check if Phantom wallet is installed
+        const getProvider = () => {
+            if ('phantom' in window) {
+                const provider = window.phantom?.solana;
+                if (provider?.isPhantom) {
+                    return provider;
+                }
+            }
+            window.open('https://phantom.app/', '_blank');
+        };
+
+        // Connect to Phantom wallet
+        connectWalletBtn.addEventListener('click', async () => {
+            try {
+                const provider = getProvider();
+                if (!provider) {
+                    showError('Phantom wallet not found. Please install it first.');
+                    return;
+                }
+
+                const resp = await provider.connect();
+                walletAddress = resp.publicKey.toString();
+
+                walletStatus.textContent = 'Wallet Connected';
+                walletStatus.style.color = '#4caf50';
+                walletAddressDiv.textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`;
+                connectWalletBtn.textContent = 'Wallet Connected';
+                connectWalletBtn.disabled = true;
+
+                // Show form
+                formSection.style.display = 'block';
+
+                // Load quizzes
+                await loadQuizzes();
+
+                showSuccess('Wallet connected successfully!');
+            } catch (err) {
+                showError('Failed to connect wallet: ' + err.message);
+            }
+        });
+
+        // Auto-connect if already authorized
+        window.addEventListener('load', async () => {
+            try {
+                const provider = getProvider();
+                if (provider) {
+                    const resp = await provider.connect({ onlyIfTrusted: true });
+                    if (resp.publicKey) {
+                        walletAddress = resp.publicKey.toString();
+                        walletStatus.textContent = 'Wallet Connected';
+                        walletStatus.style.color = '#4caf50';
+                        walletAddressDiv.textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`;
+                        connectWalletBtn.textContent = 'Wallet Connected';
+                        connectWalletBtn.disabled = true;
+                        formSection.style.display = 'block';
+                        await loadQuizzes();
+                    }
+                }
+            } catch (err) {
+                // Silent fail
+            }
+        });
+
+        // Load available quizzes
+        async function loadQuizzes() {
+            try {
+                const response = await fetch('/api/quizzes');
+                quizzes = await response.json();
+
+                quizSelect.innerHTML = '<option value="">Choose a quiz...</option>';
+                quizzes.forEach((quiz, index) => {
+                    const option = document.createElement('option');
+                    option.value = quiz.id;
+                    option.textContent = quiz.title;
+                    quizSelect.appendChild(option);
+                });
+            } catch (err) {
+                showError('Failed to load quizzes: ' + err.message);
+            }
+        }
+
+        // Quiz selection
+        quizSelect.addEventListener('change', (e) => {
+            const selectedQuizId = e.target.value;
+            if (selectedQuizId) {
+                const quiz = quizzes.find(q => q.id === selectedQuizId);
+                if (quiz) {
+                    quizInfo.innerHTML = `
+                        <strong>${quiz.title}</strong><br>
+                        Created by: ${quiz.creator}<br>
+                        Questions: ${quiz.questions.length}
+                    `;
+                    quizPreview.classList.add('active');
+                }
+            } else {
+                quizPreview.classList.remove('active');
+            }
+            validateForm();
+        });
+
+        // Prize input validation
+        prizeInput.addEventListener('input', validateForm);
+
+        function validateForm() {
+            const quizSelected = quizSelect.value !== '';
+            const prizeValid = prizeInput.value >= 0.0001 && prizeInput.value <= 1000;
+            const walletConnected = walletAddress !== null;
+
+            createGameBtn.disabled = !(quizSelected && prizeValid && walletConnected);
+        }
+
+        // Create game with escrow deposit
+        createGameBtn.addEventListener('click', async () => {
+            const quizId = quizSelect.value;
+            const prizeAmount = parseFloat(prizeInput.value);
+
+            if (!quizId || !prizeAmount) {
+                showError('Please select a quiz and enter a prize amount');
+                return;
+            }
+
+            if (!walletAddress) {
+                showError('Please connect your wallet first');
+                return;
+            }
+
+            try {
+                createGameBtn.disabled = true;
+                createGameBtn.textContent = 'DEPOSITING PRIZE TO ESCROW...';
+
+                // Step 1: Create game on backend to get game code
+                const response = await fetch('/api/games/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        quizId: quizId,
+                        prizePool: prizeAmount,
+                        hostWallet: walletAddress
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create game');
+                }
+
+                const gameCode = data.gameCode;
+
+                // Step 2: Create escrow PDA (Program Derived Address)
+                const escrowSeed = `escrow_${gameCode}`;
+                const [escrowPDA] = await PublicKey.findProgramAddress(
+                    [Buffer.from(escrowSeed)],
+                    new PublicKey('11111111111111111111111111111111') // System program for now
+                );
+
+                showSuccess(`Game code: ${gameCode}. Please approve the transaction to deposit ${prizeAmount} SOL...`);
+
+                // Step 3: Create transaction to deposit funds
+                const provider = window.phantom?.solana;
+                if (!provider) {
+                    throw new Error('Phantom wallet not found');
+                }
+
+                const lamports = Math.floor(prizeAmount * LAMPORTS_PER_SOL);
+
+                // Get recent blockhash
+                const { blockhash } = await solanaConnection.getLatestBlockhash();
+
+                // Create transaction
+                const transaction = new Transaction({
+                    recentBlockhash: blockhash,
+                    feePayer: new PublicKey(walletAddress)
+                });
+
+                // Add transfer instruction to escrow
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: escrowPDA,
+                        lamports: lamports
+                    })
+                );
+
+                createGameBtn.textContent = 'WAITING FOR APPROVAL...';
+
+                // Sign and send transaction
+                const signed = await provider.signAndSendTransaction(transaction);
+
+                showSuccess(`Prize deposited! Transaction: ${signed.signature}`);
+                createGameBtn.textContent = 'FINALIZING...';
+
+                // Step 4: Update game with escrow address
+                await fetch(`/api/games/${gameCode}/escrow`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        escrowAddress: escrowPDA.toBase58(),
+                        transactionSignature: signed.signature
+                    })
+                });
+
+                showSuccess(`Game created! Redirecting to host control...`);
+
+                // Redirect to host control page
+                setTimeout(() => {
+                    window.location.href = `/host-control.html?code=${gameCode}`;
+                }, 2000);
+
+            } catch (err) {
+                console.error('Error creating game:', err);
+                showError(err.message || 'Failed to create game. Please try again.');
+                createGameBtn.disabled = false;
+                createGameBtn.textContent = 'CREATE GAME';
+            }
+        });
+
+        function showError(message) {
+            messageBox.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function showSuccess(message) {
+            messageBox.innerHTML = `<div class="success-message">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
